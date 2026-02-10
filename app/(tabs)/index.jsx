@@ -4,15 +4,15 @@ import {
    StyleSheet,
    TouchableOpacity,
    ScrollView,
-   StatusBar,
    Alert,
 } from "react-native";
-import { useTheme } from "../components/ThemeProvider";
-import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../../components/ThemeProvider";
+import { useAuth } from "../../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
    const { theme } = useTheme();
    const { user, logout } = useAuth();
 
@@ -25,19 +25,19 @@ export default function HomeScreen({ navigation }) {
             {
                title: "Update Stock",
                icon: "📦",
-               route: "UpdateStock",
+               route: "/inventory/update-stock",
                description: "Adjust inventory levels",
             },
             {
                title: "Record Delivery",
                icon: "🚚",
-               route: "RecordDelivery",
+               route: "/inventory/record-delivery",
                description: "Add incoming stock",
             },
             {
                title: "View Inventory",
                icon: "📊",
-               route: "ViewInventory",
+               route: "/inventory",
                description: "Check stock levels",
             },
          ],
@@ -45,25 +45,25 @@ export default function HomeScreen({ navigation }) {
             {
                title: "New Sales Order",
                icon: "🛒",
-               route: "NewSalesOrder",
+               route: "/sales/new-order",
                description: "Create customer order",
             },
             {
                title: "Check Availability",
                icon: "🔍",
-               route: "CheckAvailability",
+               route: "/sales/check-availability",
                description: "Verify stock status",
             },
             {
                title: "Process Returns",
                icon: "↩️",
-               route: "ProcessReturns",
+               route: "/sales/process-returns",
                description: "Handle returns",
             },
             {
                title: "Sales History",
                icon: "📋",
-               route: "SalesHistory",
+               route: "/sales",
                description: "View transactions",
             },
          ],
@@ -71,25 +71,25 @@ export default function HomeScreen({ navigation }) {
             {
                title: "Sales Reports",
                icon: "📈",
-               route: "SalesReports",
+               route: "/reports/sales",
                description: "Analyze performance",
             },
             {
                title: "Inventory Levels",
                icon: "📉",
-               route: "InventoryLevels",
+               route: "/reports/inventory",
                description: "Stock overview",
             },
             {
                title: "Combined Reports",
                icon: "📊",
-               route: "CombinedReports",
+               route: "/reports",
                description: "Full analytics",
             },
             {
                title: "Manage Staff",
                icon: "👥",
-               route: "ManageStaff",
+               route: "/manage-staff",
                description: "View staff activity",
             },
          ],
@@ -97,25 +97,25 @@ export default function HomeScreen({ navigation }) {
             {
                title: "User Management",
                icon: "⚙️",
-               route: "UserManagement",
+               route: "/admin/users",
                description: "Manage users",
             },
             {
                title: "System Settings",
                icon: "🔧",
-               route: "SystemSettings",
+               route: "/admin/settings",
                description: "Configure system",
             },
             {
                title: "All Reports",
                icon: "📑",
-               route: "AllReports",
+               route: "/reports",
                description: "Complete analytics",
             },
             {
                title: "Audit Logs",
                icon: "📝",
-               route: "AuditLogs",
+               route: "/admin/audit-logs",
                description: "View system activity",
             },
          ],
@@ -135,7 +135,7 @@ export default function HomeScreen({ navigation }) {
                ...allItems.admin,
                ...allItems.manager.filter((item) => {
                   // remove manage staffs
-                  if (item.route === "ManageStaff") return false;
+                  if (item.route === "/manage-staff") return false;
                   return item;
                }),
                ...allItems.sales,
@@ -150,18 +150,13 @@ export default function HomeScreen({ navigation }) {
 
    const handleLogout = async () => {
       await logout();
-      // Navigation will happen automatically via App.jsx when user state changes
+      router.replace("/(auth)/login");
    };
 
    const handleNavigate = (route) => {
-      // Check if the route screen exists
-      if (navigation && typeof navigation.navigate === "function") {
-         try {
-            navigation.navigate(route);
-         } catch (error) {
-            Alert.alert("Coming Soon", "This feature is not yet implemented.");
-         }
-      } else {
+      try {
+         router.push(route);
+      } catch (error) {
          Alert.alert("Coming Soon", "This feature is not yet implemented.");
       }
    };
@@ -207,7 +202,6 @@ export default function HomeScreen({ navigation }) {
          lineHeight: 40,
          paddingTop: 20,
          paddingLeft: 5,
-         // margin: "auto",
       },
       scrollContent: {
          padding: 20,

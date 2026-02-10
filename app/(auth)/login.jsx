@@ -1,7 +1,6 @@
 import { createRef, useState } from "react";
 import {
    View,
-   // Text,
    TouchableOpacity,
    StyleSheet,
    Alert,
@@ -9,11 +8,11 @@ import {
    Platform,
 } from "react-native";
 import { TextInput, Text } from "react-native-paper";
-import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../components/ThemeProvider";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../components/ThemeProvider";
+import { router } from "expo-router";
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
    const [username, setUsername] = useState("");
    const [password, setPassword] = useState("");
    const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +31,7 @@ export default function LoginScreen({ navigation }) {
       setIsLoading(true);
       try {
          await login(username, password);
-         // Navigation will happen automatically via App.jsx when user state changes
+         router.replace("/(tabs)");
       } catch (error) {
          Alert.alert("Login Failed", "Invalid username or password");
       } finally {
@@ -157,6 +156,7 @@ export default function LoginScreen({ navigation }) {
                      autoCorrect={false}
                      ref={passwordInputRef}
                      returnKeyType="done"
+                     onSubmitEditing={handleLogin}
                      right={
                         <TextInput.Icon
                            icon={secureTextEntry ? "eye-off" : "eye"}
