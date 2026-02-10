@@ -10,6 +10,7 @@ import {
 import { useTheme } from "../components/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { MaterialIcons } from "@expo/vector-icons";
 
 export default function HomeScreen({ navigation }) {
    const { theme } = useTheme();
@@ -171,9 +172,9 @@ export default function HomeScreen({ navigation }) {
          backgroundColor: theme.background,
       },
       header: {
-         paddingTop: 20,
+         paddingTop: 10,
          paddingHorizontal: 20,
-         paddingBottom: 20,
+         paddingBottom: 10,
          backgroundColor: theme.primary,
       },
       headerContent: {
@@ -195,13 +196,18 @@ export default function HomeScreen({ navigation }) {
       },
       logoutButton: {
          backgroundColor: theme.error,
-         paddingHorizontal: 16,
-         paddingVertical: 8,
-         borderRadius: 8,
+         height: "135%",
+         width: 80,
+         marginRight: -20,
       },
       logoutText: {
          color: "#FFFFFF",
          fontWeight: "600",
+         textAlign: "center",
+         lineHeight: 40,
+         paddingTop: 20,
+         paddingLeft: 5,
+         // margin: "auto",
       },
       scrollContent: {
          padding: 20,
@@ -214,6 +220,7 @@ export default function HomeScreen({ navigation }) {
       },
       menuGrid: {
          gap: 16,
+         paddingBottom: 40,
       },
       menuCard: {
          backgroundColor: "#FFFFFF",
@@ -302,7 +309,12 @@ export default function HomeScreen({ navigation }) {
                   style={styles.logoutButton}
                   onPress={handleLogout}
                >
-                  <Text style={styles.logoutText}>Logout</Text>
+                  <MaterialIcons
+                     style={styles.logoutText}
+                     name="logout"
+                     size={50}
+                     color="#FFFFFF"
+                  />
                </TouchableOpacity>
             </View>
          </View>
