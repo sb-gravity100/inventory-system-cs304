@@ -16,148 +16,93 @@ export default function HomeScreen() {
    const { theme } = useTheme();
    const { user, logout } = useAuth();
 
-   // Role-based menu items
-   const getMenuItems = () => {
+   // Simplified role-based quick actions
+   const getQuickActions = () => {
       const role = user?.role?.toLowerCase();
 
-      const allItems = {
-         warehouse: [
+      // Core actions that link to existing tabs
+      const coreActions = [
+         {
+            title: "View Inventory",
+            icon: "📦",
+            route: "/inventory",
+            description: "Check current stock levels",
+            roles: ["staff", "manager", "admin"],
+         },
+         {
+            title: "Sales Transactions",
+            icon: "🛒",
+            route: "/sales",
+            description: "Manage sales orders",
+            roles: ["staff", "manager", "admin"],
+         },
+         {
+            title: "View Reports",
+            icon: "📊",
+            route: "/reports",
+            description: "Analytics and insights",
+            roles: ["manager", "admin"],
+         },
+         {
+            title: "User Management",
+            icon: "👥",
+            route: "/users",
+            description: "Manage staff accounts",
+            roles: ["admin", "manager"],
+         }
+      ];
+
+      // Additional quick actions based on role
+      const roleSpecificActions = {
+         staff: [
             {
-               title: "Update Stock",
-               icon: "📦",
-               route: "/inventory/update-stock",
-               description: "Adjust inventory levels",
-            },
-            {
-               title: "Record Delivery",
-               icon: "🚚",
-               route: "/inventory/record-delivery",
-               description: "Add incoming stock",
-            },
-            {
-               title: "View Inventory",
-               icon: "📊",
-               route: "/inventory",
-               description: "Check stock levels",
-            },
-         ],
-         sales: [
-            {
-               title: "New Sales Order",
-               icon: "🛒",
-               route: "/sales/new-order",
-               description: "Create customer order",
-            },
-            {
-               title: "Check Availability",
+               title: "Quick Stock Check",
                icon: "🔍",
-               route: "/sales/check-availability",
-               description: "Verify stock status",
-            },
-            {
-               title: "Process Returns",
-               icon: "↩️",
-               route: "/sales/process-returns",
-               description: "Handle returns",
-            },
-            {
-               title: "Sales History",
-               icon: "📋",
-               route: "/sales",
-               description: "View transactions",
+               action: () => Alert.alert("Quick Check", "Scan or search for items"),
+               description: "Fast item lookup",
             },
          ],
          manager: [
             {
-               title: "Sales Reports",
-               icon: "📈",
-               route: "/reports/sales",
-               description: "Analyze performance",
-            },
-            {
-               title: "Inventory Levels",
-               icon: "📉",
-               route: "/reports/inventory",
-               description: "Stock overview",
-            },
-            {
-               title: "Combined Reports",
-               icon: "📊",
-               route: "/reports",
-               description: "Full analytics",
-            },
-            {
-               title: "Manage Staff",
-               icon: "👥",
-               route: "/manage-staff",
-               description: "View staff activity",
-            },
+               title: "Low Stock Alert",
+               icon: "⚠️",
+               action: () => router.push("/inventory"),
+               description: "Items need restocking",
+            }
          ],
          admin: [
             {
-               title: "User Management",
-               icon: "⚙️",
-               route: "/admin/users",
-               description: "Manage users",
-            },
-            {
                title: "System Settings",
-               icon: "🔧",
-               route: "/admin/settings",
+               icon: "⚙️",
+               action: () => Alert.alert("Coming Soon", "Admin settings in development"),
                description: "Configure system",
-            },
-            {
-               title: "All Reports",
-               icon: "📑",
-               route: "/reports",
-               description: "Complete analytics",
-            },
-            {
-               title: "Audit Logs",
-               icon: "📝",
-               route: "/admin/audit-logs",
-               description: "View system activity",
             },
          ],
       };
 
-      switch (role) {
-         case "staff":
-            return [...allItems.warehouse, ...allItems.sales];
-         case "manager":
-            return [
-               ...allItems.manager,
-               ...allItems.sales,
-               ...allItems.warehouse,
-            ];
-         case "admin":
-            return [
-               ...allItems.admin,
-               ...allItems.manager.filter((item) => {
-                  // remove manage staffs
-                  if (item.route === "/manage-staff") return false;
-                  return item;
-               }),
-               ...allItems.sales,
-               ...allItems.warehouse,
-            ];
-         default:
-            return [];
-      }
+      // Filter core actions by role
+      const allowedActions = coreActions.filter((action) =>
+         action.roles.includes(role)
+      );
+
+      // Add role-specific actions
+      const specificActions = roleSpecificActions[role] || [];
+
+      return [...allowedActions, ...specificActions];
    };
 
-   const menuItems = getMenuItems();
+   const quickActions = getQuickActions();
 
    const handleLogout = async () => {
       await logout();
       router.replace("/(auth)/login");
    };
 
-   const handleNavigate = (route) => {
-      try {
-         router.push(route);
-      } catch (error) {
-         Alert.alert("Coming Soon", "This feature is not yet implemented.");
+   const handleActionPress = (action) => {
+      if (action.route) {
+         router.push(action.route);
+      } else if (action.action) {
+         action.action();
       }
    };
 
@@ -284,6 +229,19 @@ export default function HomeScreen() {
          color: theme.textSecondary,
          textAlign: "center",
       },
+      infoCard: {
+         backgroundColor: theme.accent,
+         borderRadius: 12,
+         padding: 16,
+         marginBottom: 24,
+         opacity: 0.9,
+      },
+      infoText: {
+         fontSize: 14,
+         color: "#FFFFFF",
+         textAlign: "center",
+         lineHeight: 20,
+      },
    });
 
    return (
@@ -344,12 +302,19 @@ export default function HomeScreen() {
                </View>
             )}
 
-            {/* Menu Section */}
+            {/* Info Card */}
+            <View style={styles.infoCard}>
+               <Text style={styles.infoText}>
+                  💡 Use the tabs below to navigate between Inventory, Sales, and Reports
+               </Text>
+            </View>
+
+            {/* Quick Actions Section */}
             <Text style={styles.sectionTitle}>Quick Actions</Text>
 
             <View style={styles.menuGrid}>
-               {menuItems.length > 0 ? (
-                  menuItems.map((item, index) => (
+               {quickActions.length > 0 ? (
+                  quickActions.map((action, index) => (
                      <TouchableOpacity
                         key={index}
                         style={[
@@ -357,13 +322,13 @@ export default function HomeScreen() {
                            theme.background === "#2E2E2E" &&
                               styles.menuCardDark,
                         ]}
-                        onPress={() => handleNavigate(item.route)}
+                        onPress={() => handleActionPress(action)}
                      >
-                        <Text style={styles.menuIcon}>{item.icon}</Text>
+                        <Text style={styles.menuIcon}>{action.icon}</Text>
                         <View style={styles.menuContent}>
-                           <Text style={styles.menuTitle}>{item.title}</Text>
+                           <Text style={styles.menuTitle}>{action.title}</Text>
                            <Text style={styles.menuDescription}>
-                              {item.description}
+                              {action.description}
                            </Text>
                         </View>
                      </TouchableOpacity>
