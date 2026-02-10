@@ -56,9 +56,16 @@ export default function HomeScreen() {
       const roleSpecificActions = {
          staff: [
             {
+               title: "Start Transaction",
+               icon: "💰",
+               route: "/transaction",
+               description: "Create new sale",
+            },
+            {
                title: "Quick Stock Check",
                icon: "🔍",
-               action: () => Alert.alert("Quick Check", "Scan or search for items"),
+               action: () =>
+                  Alert.alert("Quick Check", "Scan or search for items"),
                description: "Fast item lookup",
             },
          ],
@@ -68,13 +75,14 @@ export default function HomeScreen() {
                icon: "⚠️",
                action: () => router.push("/inventory"),
                description: "Items need restocking",
-            }
+            },
          ],
          admin: [
             {
                title: "System Settings",
                icon: "⚙️",
-               action: () => Alert.alert("Coming Soon", "Admin settings in development"),
+               action: () =>
+                  Alert.alert("Coming Soon", "Admin settings in development"),
                description: "Configure system",
             },
          ],
