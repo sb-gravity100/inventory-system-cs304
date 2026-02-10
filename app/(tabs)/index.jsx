@@ -48,8 +48,8 @@ export default function HomeScreen() {
             icon: "👥",
             route: "/users",
             description: "Manage staff accounts",
-            roles: ["admin", "manager"],
-         }
+            roles: ["admin"],
+         },
       ];
 
       // Additional quick actions based on role
