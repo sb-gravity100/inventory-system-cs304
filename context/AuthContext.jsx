@@ -6,45 +6,55 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [authState, setAuthState] = useState({
+     token: null,
+     isAuth: false,
+  });
   const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const token = await SecureStore.getItemAsync('jwt');
-        if (token) {
-          const response = await axios.get('http://localhost:3000/api/auth/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setUser(response.data);
-        }
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    checkAuthStatus();
+  useEffect(() => {
+     const checkAuthStatus = async () => {
+        try {
+           const token = await SecureStore.getItemAsync("jwt");
+           if (token) {
+              const response = await axios.get(
+                 "http://localhost:3000/auth/me",
+                 {
+                    headers: { Authorization: `Bearer ${token}` },
+                 }
+              );
+              setUser(response.data);
+           }
+        } catch (error) {
+           console.error("Error checking auth status:", error);
+        } finally {
+           setLoading(false);
+        }
+     };
+
+     checkAuthStatus();
   }, []);
 
-  const login = async (email, password) => {
-    try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', { email, password });
-      const { token, user } = response.data;
-      await SecureStore.setItemAsync('jwt', token);
-      setUser(user);
-    } catch (error) {
-      console.error('Login error:', error);
-    }
+  const login = async (username, password) => {
+     try {
+        const response = await axios.post("http://localhost:3000/auth/login", {
+           username,
+           password,
+        });
+        const { token, user } = response.data;
+        await SecureStore.setItemAsync("jwt", token);
+        setUser(user);
+     } catch (error) {
+        console.error("Login error:", error);
+     }
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync('jwt');
-    setUser(null);
+     await SecureStore.deleteItemAsync("jwt");
+     setUser(null);
   };
 
-  const value = { user, isLoading: loading, login, logout };
+  const value = { user, isLoading: loading, login, logout, auth };
 
   return (
     <AuthContext.Provider value={value}>
