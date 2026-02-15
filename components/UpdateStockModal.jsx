@@ -7,6 +7,7 @@ import {
    ScrollView,
    StyleSheet,
 } from "react-native";
+import { Input } from "./ui";
 
 export default function UpdateStockModal({
    visible,
@@ -47,16 +48,6 @@ export default function UpdateStockModal({
          fontWeight: "600",
          color: theme.textPrimary,
          marginBottom: 8,
-      },
-      input: {
-         backgroundColor: theme.bg2,
-         borderWidth: 1,
-         borderColor: theme.border,
-         borderRadius: 8,
-         paddingHorizontal: 16,
-         paddingVertical: 12,
-         fontSize: 16,
-         color: theme.textPrimary,
       },
       modalActions: {
          flexDirection: "row",
@@ -213,10 +204,8 @@ export default function UpdateStockModal({
 
                <View style={styles.inputGroup}>
                   <Text style={styles.label}>Quantity</Text>
-                  <TextInput
-                     style={styles.input}
+                  <Input
                      placeholder="Enter quantity"
-                     placeholderTextColor={theme.textSecondary}
                      value={stockQuantity}
                      onChangeText={setStockQuantity}
                      keyboardType="number-pad"

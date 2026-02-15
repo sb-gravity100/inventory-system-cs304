@@ -6,6 +6,7 @@ import {
    TextInput,
    StyleSheet,
 } from "react-native";
+import { Input } from "./ui";
 
 export default function AddProductModal({
    visible,
@@ -48,16 +49,6 @@ export default function AddProductModal({
          color: theme.textPrimary,
          marginBottom: 8,
       },
-      input: {
-         backgroundColor: theme.bg2,
-         borderWidth: 1,
-         borderColor: theme.border,
-         borderRadius: 8,
-         paddingHorizontal: 16,
-         paddingVertical: 12,
-         fontSize: 16,
-         color: theme.textPrimary,
-      },
       modalActions: {
          flexDirection: "row",
          gap: 12,
@@ -95,10 +86,8 @@ export default function AddProductModal({
 
                <View style={styles.inputGroup}>
                   <Text style={styles.label}>Product Name</Text>
-                  <TextInput
-                     style={styles.input}
+                  <Input
                      placeholder="Enter product name"
-                     placeholderTextColor={theme.textSecondary}
                      value={newProductName}
                      onChangeText={setNewProductName}
                   />
@@ -106,10 +95,8 @@ export default function AddProductModal({
 
                <View style={styles.inputGroup}>
                   <Text style={styles.label}>Price</Text>
-                  <TextInput
-                     style={styles.input}
+                  <Input
                      placeholder="0.00"
-                     placeholderTextColor={theme.textSecondary}
                      value={newProductPrice}
                      onChangeText={setNewProductPrice}
                      keyboardType="decimal-pad"
@@ -118,12 +105,10 @@ export default function AddProductModal({
 
                <View style={styles.inputGroup}>
                   <Text style={styles.label}>Initial Stock</Text>
-                  <TextInput
-                     style={styles.input}
+                  <Input
                      placeholder="0"
-                     placeholderTextColor={theme.textSecondary}
                      value={newProductStock}
-                     onChangeText={(v) => setNewProductStock((s) => v)}
+                     onChangeText={setNewProductStock}
                      keyboardType="number-pad"
                   />
                </View>

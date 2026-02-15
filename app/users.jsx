@@ -8,6 +8,7 @@ import {
    Modal,
    TextInput as RNTextInput,
 } from "react-native";
+import { Input } from "../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
@@ -350,15 +351,6 @@ export default function UsersScreen() {
          color: theme.textPrimary,
          marginBottom: 8,
       },
-      input: {
-         backgroundColor: theme.bg2,
-         borderWidth: 1,
-         borderColor: theme.border,
-         borderRadius: 8,
-         paddingHorizontal: 16,
-         fontSize: 16,
-         color: theme.textPrimary,
-      },
       roleSelector: {
          flexDirection: "row",
          gap: 8,
@@ -542,10 +534,8 @@ export default function UsersScreen() {
 
                   <View style={styles.inputGroup}>
                      <Text style={styles.label}>Username</Text>
-                     <RNTextInput
-                        style={styles.input}
+                     <Input
                         placeholder="Enter username"
-                        placeholderTextColor={theme.textSecondary}
                         value={newUsername}
                         onChangeText={setNewUsername}
                         autoCapitalize="none"
@@ -625,10 +615,8 @@ export default function UsersScreen() {
 
                   <View style={styles.inputGroup}>
                      <Text style={styles.label}>Username</Text>
-                     <RNTextInput
-                        style={styles.input}
+                     <Input
                         placeholder="Enter username"
-                        placeholderTextColor={theme.textSecondary}
                         value={editUsername}
                         onChangeText={setEditUsername}
                         autoCapitalize="none"
