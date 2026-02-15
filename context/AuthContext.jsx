@@ -3,7 +3,10 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
 const AuthContext = createContext();
-const api_url = process.env.NODE_ENV === "development" ? "http://192.168.254.101:3000" : process.env.EXPO_PUBLIC_API_URL;
+const api_url =
+   process.env.NODE_ENV === "development"
+      ? "http://192.168.254.102:3000"
+      : process.env.EXPO_PUBLIC_API_URL;
 
 export const AuthProvider = ({ children }) => {
    const [user, setUser] = useState(null);

@@ -19,7 +19,7 @@ import PasswordInput from "../components/PasswordInput";
 
 const api_url =
    process.env.NODE_ENV === "development"
-      ? "http://192.168.254.101:3000"
+      ? "http://192.168.254.102:3000"
       : process.env.EXPO_PUBLIC_API_URL;
 
 export default function UsersScreen() {
@@ -200,9 +200,9 @@ export default function UsersScreen() {
          case "admin":
             return theme.error;
          case "manager":
-            return theme.accent;
+            return theme.card;
          default:
-            return theme.secondary;
+            return theme.success;
       }
    };
 
@@ -256,9 +256,10 @@ export default function UsersScreen() {
          paddingHorizontal: 20,
       },
       userCard: {
-         backgroundColor: "#FFFFFF",
+         backgroundColor: theme.bg2,
          borderRadius: 12,
-         padding: 16,
+         paddingVertical: 10,
+         paddingHorizontal: 16,
          marginBottom: 12,
          shadowColor: "#000",
          shadowOffset: { width: 0, height: 2 },
@@ -350,8 +351,7 @@ export default function UsersScreen() {
          marginBottom: 8,
       },
       input: {
-         backgroundColor:
-            theme.background === "#2E2E2E" ? "#3A3A3A" : "#F5F5F5",
+         backgroundColor: theme.bg2,
          borderWidth: 1,
          borderColor: theme.border,
          borderRadius: 8,
@@ -467,13 +467,7 @@ export default function UsersScreen() {
          <ScrollView style={styles.usersList}>
             {users.length > 0 ? (
                users.map((userItem) => (
-                  <View
-                     key={userItem._id}
-                     style={[
-                        styles.userCard,
-                        theme.background === "#2E2E2E" && styles.userCardDark,
-                     ]}
-                  >
+                  <View key={userItem._id} style={[styles.userCard]}>
                      <View style={styles.userHeader}>
                         <View style={styles.userInfo}>
                            <Text style={styles.username}>

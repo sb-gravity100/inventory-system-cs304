@@ -13,7 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 export default function HomeScreen() {
-   const { theme } = useTheme();
+   const { theme, toggleTheme } = useTheme();
    const { user, logout } = useAuth();
 
    // Simplified role-based quick actions
@@ -144,7 +144,7 @@ export default function HomeScreen() {
       },
       logoutButton: {
          backgroundColor: theme.error,
-         height: "135%",
+         height: "134%",
          width: 80,
          marginRight: -20,
       },
@@ -170,7 +170,7 @@ export default function HomeScreen() {
          paddingBottom: 40,
       },
       menuCard: {
-         backgroundColor: "#FFFFFF",
+         backgroundColor: theme.bg2,
          borderRadius: 12,
          padding: 20,
          flexDirection: "row",
@@ -182,9 +182,6 @@ export default function HomeScreen() {
          elevation: 3,
          borderLeftWidth: 4,
          borderLeftColor: theme.secondary,
-      },
-      menuCardDark: {
-         backgroundColor: "#3A3A3A",
       },
       menuIcon: {
          fontSize: 32,
@@ -218,12 +215,12 @@ export default function HomeScreen() {
       statValue: {
          fontSize: 24,
          fontWeight: "bold",
-         color: "#FFFFFF",
+         color: theme.textPrimary,
          marginBottom: 4,
       },
       statLabel: {
          fontSize: 12,
-         color: "#FFFFFF",
+         color: theme.textSecondary,
          opacity: 0.9,
       },
       emptyState: {
@@ -250,6 +247,19 @@ export default function HomeScreen() {
          textAlign: "center",
          lineHeight: 20,
       },
+      toggleButton: {
+         height: "134%",
+         width: 80,
+         marginRight: -20,
+      },
+      toggleButtonText: {
+         color: "#FFFFFF",
+         fontWeight: "600",
+         textAlign: "center",
+         lineHeight: 40,
+         paddingTop: 20,
+         paddingLeft: 5,
+      },
    });
 
    return (
@@ -265,6 +275,20 @@ export default function HomeScreen() {
                      {user?.role || "Staff"} Dashboard
                   </Text>
                </View>
+               <TouchableOpacity
+                  style={[
+                     styles.toggleButton,
+                     { backgroundColor: theme.primary },
+                  ]}
+                  onPress={toggleTheme}
+               >
+                  <MaterialIcons
+                     name={theme.isDark ? "light-mode" : "dark-mode"}
+                     size={40}
+                     style={styles.toggleButtonText}
+                     color="#FFFFFF"
+                  />
+               </TouchableOpacity>
                <TouchableOpacity
                   style={styles.logoutButton}
                   onPress={handleLogout}
@@ -290,10 +314,7 @@ export default function HomeScreen() {
                      <Text style={styles.statLabel}>Total Items</Text>
                   </View>
                   <View
-                     style={[
-                        styles.statCard,
-                        { backgroundColor: theme.accent },
-                     ]}
+                     style={[styles.statCard, { backgroundColor: theme.card }]}
                   >
                      <Text style={styles.statValue}>12</Text>
                      <Text style={styles.statLabel}>Low Stock</Text>
@@ -313,7 +334,8 @@ export default function HomeScreen() {
             {/* Info Card */}
             <View style={styles.infoCard}>
                <Text style={styles.infoText}>
-                  💡 Use the tabs below to navigate between Inventory, Sales, and Reports
+                  💡 Use the tabs below to navigate between Inventory, Sales,
+                  and Reports
                </Text>
             </View>
 
@@ -325,11 +347,7 @@ export default function HomeScreen() {
                   quickActions.map((action, index) => (
                      <TouchableOpacity
                         key={index}
-                        style={[
-                           styles.menuCard,
-                           theme.background === "#2E2E2E" &&
-                              styles.menuCardDark,
-                        ]}
+                        style={[styles.menuCard]}
                         onPress={() => handleActionPress(action)}
                      >
                         <Text style={styles.menuIcon}>{action.icon}</Text>

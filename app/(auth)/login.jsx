@@ -30,7 +30,7 @@ export default function LoginScreen() {
 
       setIsLoading(true);
       try {
-         await login(username, password);
+         await login(username.trim(), password.trim());
          router.replace("/(tabs)");
       } catch (error) {
          Alert.alert("Login Failed", "Invalid username or password");

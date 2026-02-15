@@ -1,26 +1,30 @@
 // colors.js
 export const LightColors = {
-   background: "#F5F5F5",
-   primary: "#6C7A89",
-   secondary: "#A3B18A",
-   accent: "#E0AFA0",
-   textPrimary: "#333333",
+   background: "#fafaff", // ghost white
+   primary: "#1D263B", // twilight indigo
+   secondary: "#edfafc", // periwinkle
+   accent: "#30343f", // jet black
+   textPrimary: "#050404", // space indigo
    textSecondary: "#666666",
    border: "#DDDDDD",
-   success: "#8AA399",
+   success: "#32be86",
    warning: "#D9B26C",
-   error: "#B97A7A",
+   error: "#d64045", // scarlet rush
+   bg2: "#f5f5f5",
+   card: "#8F9779",
 };
 
 export const DarkColors = {
-   background: "#2E2E2E",
-   primary: "#6C7A89",
-   secondary: "#A3B18A",
-   accent: "#E0AFA0",
-   textPrimary: "#F5F5F5",
+   background: "#30343f", // jet black
+   primary: "#191516", // twilight indigo
+   secondary: "#1D201F", // darker teal tone
+   accent: "#d3d3d3", // deep gray
+   textPrimary: "#fafaff", // ghost white
    textSecondary: "#CCCCCC",
    border: "#444444",
-   success: "#8AA399",
+   success: "#32be86",
    warning: "#D9B26C",
-   error: "#B97A7A",
+   error: "#d64045", // scarlet rush
+   bg2: "#3A3A3A",
+   card: "#8F9779",
 };
