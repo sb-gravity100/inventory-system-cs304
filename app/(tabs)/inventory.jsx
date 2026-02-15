@@ -4,6 +4,7 @@ import {
    Animated,
    FlatList,
    ActivityIndicator,
+   RefreshControl,
 } from "react-native";
 import { Title, Caption, Header, FAB, Loading } from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,8 +31,7 @@ export default function InventoryScreen() {
    const [page, setPage] = useState(1);
    const [hasMore, setHasMore] = useState(true);
    const [loadingMore, setLoadingMore] = useState(false);
-   const [fabOpen, setFabOpen] = useState(false);
-   const fabAnimation = useState(new Animated.Value(0))[0];
+   const [totalProducts, setTotalProducts] = useState(0);
 
    const [addProductModal, setAddProductModal] = useState(false);
    const [updateStockModal, setUpdateStockModal] = useState(false);
@@ -45,6 +45,7 @@ export default function InventoryScreen() {
    // Update Stock form
    const [stockAction, setStockAction] = useState("add");
    const [stockQuantity, setStockQuantity] = useState("");
+   const [refreshing, setRefreshing] = useState(false);
 
    useEffect(() => {
       fetchProducts(1);
@@ -67,9 +68,10 @@ export default function InventoryScreen() {
          });
 
          if (pageNum === 1) {
-            setProducts(response.data);
+            setProducts(response.data.products);
+            setTotalProducts(response.data.total);
          } else {
-            setProducts((prev) => [...prev, ...response.data]);
+            setProducts((prev) => [...prev, ...response.data.products]);
          }
 
          setHasMore(response.data.length === 10);
@@ -120,16 +122,6 @@ export default function InventoryScreen() {
       }
 
       return actions;
-   };
-
-   const toggleFab = () => {
-      const toValue = fabOpen ? 0 : 1;
-      Animated.spring(fabAnimation, {
-         toValue,
-         friction: 5,
-         useNativeDriver: true,
-      }).start();
-      setFabOpen(!fabOpen);
    };
 
    const handleAddProduct = () => {
@@ -194,19 +186,17 @@ export default function InventoryScreen() {
       setStockQuantity("");
    };
 
-   if (loading) {
-      return (
-         <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-            <Loading message="Loading products..." />
-         </SafeAreaView>
-      );
-   }
+   const onRefresh = async () => {
+      setRefreshing(true);
+      await fetchProducts(1);
+      setRefreshing(false);
+   };
 
    return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
          <Header
             title="📦 Inventory"
-            subtitle={`${products.length} products in stock`}
+            subtitle={`${totalProducts} products in stock`}
          />
 
          {loading ? (
@@ -225,6 +215,15 @@ export default function InventoryScreen() {
             <FlatList
                data={products}
                keyExtractor={(item) => item._id}
+               onScrollBeginDrag={() => {}}
+               scrollEventThrottle={16}
+               refreshControl={
+                  <RefreshControl
+                     refreshing={refreshing}
+                     onRefresh={onRefresh}
+                     tintColor={theme.primary}
+                  />
+               }
                renderItem={({ item }) => (
                   <ProductCard
                      product={item}

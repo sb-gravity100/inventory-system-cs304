@@ -72,6 +72,9 @@ export default function UpdateStockModal({
                value={stockQuantity}
                onChangeText={setStockQuantity}
                keyboardType="number-pad"
+               style={{
+                  width: 250,
+               }}
             />
          </FormField>
       </Modal>

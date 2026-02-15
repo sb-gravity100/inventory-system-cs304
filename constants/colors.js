@@ -12,6 +12,7 @@ export const LightColors = {
    error: "#d64045", // scarlet rush
    bg2: "#f5f5f5",
    card: "#8F9779",
+   gray: "#686868",
 };
 
 export const DarkColors = {
@@ -27,4 +28,5 @@ export const DarkColors = {
    error: "#d64045", // scarlet rush
    bg2: "#3A3A3A",
    card: "#8F9779",
+   gray: "#686868",
 };

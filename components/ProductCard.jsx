@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import { View, Text, StyleSheet } from "react-native";
+// import { MaterialIcons } from "@expo/vector-icons";
+import { DropdownMenu } from "./ui";
 import { useState } from "react";
 
 export default function ProductCard({ product, theme, onUpdateStock }) {
@@ -49,36 +50,6 @@ export default function ProductCard({ product, theme, onUpdateStock }) {
          fontSize: 14,
          color: theme.textSecondary,
       },
-      menuButton: {
-         padding: 4,
-      },
-      menuDropdown: {
-         position: "absolute",
-         right: 8,
-         top: 40,
-         backgroundColor: theme.background,
-         borderRadius: 8,
-         borderWidth: 1,
-         borderColor: theme.border,
-         minWidth: 150,
-         shadowColor: "#000",
-         shadowOffset: { width: 0, height: 2 },
-         shadowOpacity: 0.2,
-         shadowRadius: 4,
-         elevation: 5,
-         zIndex: 1000,
-      },
-      menuItem: {
-         flexDirection: "row",
-         alignItems: "center",
-         paddingVertical: 12,
-         paddingHorizontal: 16,
-         gap: 12,
-      },
-      menuItemText: {
-         fontSize: 14,
-         color: theme.textPrimary,
-      },
    });
 
    return (
@@ -97,36 +68,20 @@ export default function ProductCard({ product, theme, onUpdateStock }) {
                   </Text>
                </View>
             </View>
-            <TouchableOpacity
-               style={styles.menuButton}
-               onPress={() => setMenuOpen(!menuOpen)}
-            >
-               <MaterialIcons
-                  name="more-vert"
-                  size={24}
-                  color={theme.textPrimary}
-               />
-            </TouchableOpacity>
+            <DropdownMenu
+               items={[
+                  {
+                     icon: "inventory",
+                     label: "Update Stock",
+                     onPress: () => {
+                        setMenuOpen(false);
+                        onUpdateStock(product);
+                     },
+                  },
+               ]}
+               onClose={() => setMenuOpen(false)}
+            />
          </View>
-
-         {menuOpen && (
-            <View style={styles.menuDropdown}>
-               <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => {
-                     setMenuOpen(false);
-                     onUpdateStock(product);
-                  }}
-               >
-                  <MaterialIcons
-                     name="inventory"
-                     size={20}
-                     color={theme.textPrimary}
-                  />
-                  <Text style={styles.menuItemText}>Update Stock</Text>
-               </TouchableOpacity>
-            </View>
-         )}
       </View>
    );
 }

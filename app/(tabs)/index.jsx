@@ -1,106 +1,66 @@
 import {
    View,
-   Text,
-   StyleSheet,
-   TouchableOpacity,
    ScrollView,
    Alert,
+   StyleSheet,
+   RefreshControl,
 } from "react-native";
-import { Title, Body, Caption, Subtitle } from "../../components/ui";
+import { Caption, Subtitle, Body } from "../../components/ui";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import HomeHeader from "../../components/home/HomeHeader";
+import StatCard from "../../components/home/StatCard";
+import QuickActionCard from "../../components/home/QuickActionCard";
+import { getQuickActions } from "../../utils/quickActions";
+import Card from "../../components/ui/Card";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
+const api_url =
+   process.env.NODE_ENV === "development"
+      ? "http://192.168.254.102:3000"
+      : process.env.EXPO_PUBLIC_API_URL;
 
 export default function HomeScreen() {
    const { theme, toggleTheme } = useTheme();
-   const { user, logout } = useAuth();
+   const { user, logout, authState } = useAuth();
+   const [totalItems, setTotalItems] = useState(0);
+   const [totalStocks, setTotalStocks] = useState(0);
+   const [todaysSales, setTodaysSales] = useState(0);
+   const [loadingStats, setLoadingStats] = useState(true);
+   const [refreshing, setRefreshing] = useState(false);
 
-   // Simplified role-based quick actions
-   const getQuickActions = () => {
-      const role = user?.role?.toLowerCase();
+   useEffect(() => {
+      fetchStats();
+   }, []);
 
-      // Core actions that link to existing tabs
-      const coreActions = [
-         {
-            title: "View Inventory",
-            icon: "📦",
-            route: "/inventory",
-            description: "Check current stock levels",
-            roles: ["staff", "manager", "admin"],
-         },
-         {
-            title: "Sales Transactions",
-            icon: "🛒",
-            route: "/sales",
-            description: "Manage sales orders",
-            roles: ["staff", "manager", "admin"],
-         },
-         {
-            title: "View Reports",
-            icon: "📊",
-            route: "/reports",
-            description: "Analytics and insights",
-            roles: ["manager", "admin"],
-         },
-         {
-            title: "User Management",
-            icon: "👥",
-            route: "/users",
-            description: "Manage staff accounts",
-            roles: ["admin"],
-         },
-      ];
-
-      // Additional quick actions based on role
-      const roleSpecificActions = {
-         staff: [
-            {
-               title: "Start Transaction",
-               icon: "💰",
-               route: "/transaction",
-               description: "Create new sale",
+   const fetchStats = async () => {
+      try {
+         setLoadingStats(true);
+         const response = await axios.get(`${api_url}/sales/stats`, {
+            headers: {
+               Authorization: `Bearer ${authState.token}`,
             },
-            {
-               title: "Quick Stock Check",
-               icon: "🔍",
-               action: () =>
-                  Alert.alert("Quick Check", "Scan or search for items"),
-               description: "Fast item lookup",
-            },
-         ],
-         manager: [
-            {
-               title: "Low Stock Alert",
-               icon: "⚠️",
-               action: () => router.push("/inventory"),
-               description: "Items need restocking",
-            },
-         ],
-         admin: [
-            {
-               title: "System Settings",
-               icon: "⚙️",
-               action: () =>
-                  Alert.alert("Coming Soon", "Admin settings in development"),
-               description: "Configure system",
-            },
-         ],
-      };
-
-      // Filter core actions by role
-      const allowedActions = coreActions.filter((action) =>
-         action.roles.includes(role)
-      );
-
-      // Add role-specific actions
-      const specificActions = roleSpecificActions[role] || [];
-
-      return [...allowedActions, ...specificActions];
+         });
+         setTotalItems(response.data.totalItemsSold);
+         setTotalStocks(response.data.totalStocks);
+         setTodaysSales(response.data.todaysSales);
+      } catch (error) {
+         console.error("Error fetching stats:", error);
+      } finally {
+         setLoadingStats(false);
+      }
    };
 
-   const quickActions = getQuickActions();
+   const onRefresh = async () => {
+      setRefreshing(true);
+      await fetchStats();
+      setRefreshing(false);
+   };
+
+   const quickActions = getQuickActions(user?.role?.toLowerCase());
 
    const handleLogout = async () => {
       await logout();
@@ -110,8 +70,10 @@ export default function HomeScreen() {
    const handleActionPress = (action) => {
       if (action.route) {
          router.push(action.route);
-      } else if (action.action) {
-         action.action();
+      } else if (action.action === "quickCheck") {
+         Alert.alert("Quick Check", "Scan or search for items");
+      } else if (action.action === "settings") {
+         Alert.alert("Coming Soon", "Admin settings in development");
       }
    };
 
@@ -120,109 +82,17 @@ export default function HomeScreen() {
          flex: 1,
          backgroundColor: theme.background,
       },
-      header: {
-         paddingTop: 10,
-         paddingHorizontal: 20,
-         paddingBottom: 10,
-         backgroundColor: theme.primary,
-      },
-      headerContent: {
-         flexDirection: "row",
-         justifyContent: "space-between",
-         alignItems: "center",
-      },
-      welcomeText: {
-         fontSize: 24,
-         fontWeight: "bold",
-         color: "#FFFFFF",
-         marginBottom: 4,
-      },
-      roleText: {
-         fontSize: 14,
-         color: "#FFFFFF",
-         opacity: 0.9,
-         textTransform: "capitalize",
-      },
-      logoutButton: {
-         backgroundColor: theme.error,
-         height: "134%",
-         width: 80,
-         marginRight: -20,
-      },
-      logoutText: {
-         color: "#FFFFFF",
-         fontWeight: "600",
-         textAlign: "center",
-         lineHeight: 40,
-         paddingTop: 20,
-         paddingLeft: 5,
-      },
       scrollContent: {
          padding: 20,
-      },
-      sectionTitle: {
-         fontSize: 18,
-         fontWeight: "600",
-         color: theme.textPrimary,
-         marginBottom: 16,
-      },
-      menuGrid: {
-         gap: 16,
-         paddingBottom: 40,
-      },
-      menuCard: {
-         backgroundColor: theme.bg2,
-         borderRadius: 12,
-         padding: 20,
-         flexDirection: "row",
-         alignItems: "center",
-         shadowColor: "#000",
-         shadowOffset: { width: 0, height: 2 },
-         shadowOpacity: 0.1,
-         shadowRadius: 4,
-         elevation: 3,
-         borderLeftWidth: 4,
-         borderLeftColor: theme.secondary,
-      },
-      menuIcon: {
-         fontSize: 32,
-         marginRight: 16,
-      },
-      menuContent: {
-         flex: 1,
-      },
-      menuTitle: {
-         fontSize: 16,
-         fontWeight: "600",
-         color: theme.textPrimary,
-         marginBottom: 4,
-      },
-      menuDescription: {
-         fontSize: 13,
-         color: theme.textSecondary,
       },
       statsContainer: {
          flexDirection: "row",
          gap: 12,
          marginBottom: 24,
       },
-      statCard: {
-         flex: 1,
-         backgroundColor: theme.secondary,
-         borderRadius: 12,
-         padding: 16,
-         alignItems: "center",
-      },
-      statValue: {
-         fontSize: 24,
-         fontWeight: "bold",
-         color: theme.textPrimary,
-         marginBottom: 4,
-      },
-      statLabel: {
-         fontSize: 12,
-         color: theme.textSecondary,
-         opacity: 0.9,
+      menuGrid: {
+         gap: 16,
+         paddingBottom: 40,
       },
       emptyState: {
          flex: 1,
@@ -230,137 +100,88 @@ export default function HomeScreen() {
          alignItems: "center",
          paddingVertical: 60,
       },
-      emptyText: {
-         fontSize: 16,
-         color: theme.textSecondary,
-         textAlign: "center",
-      },
-      infoCard: {
-         backgroundColor: theme.secondary,
-         borderRadius: 12,
-         padding: 16,
-         marginBottom: 24,
-         opacity: 0.9,
-      },
-      infoText: {
-         fontSize: 14,
-         color: "#FFFFFF",
-         textAlign: "center",
-         lineHeight: 20,
-      },
-      toggleButton: {
-         height: "134%",
-         width: 80,
-         marginRight: -20,
-      },
-      toggleButtonText: {
-         color: "#FFFFFF",
-         fontWeight: "600",
-         textAlign: "center",
-         lineHeight: 40,
-         paddingTop: 20,
-         paddingLeft: 5,
-      },
    });
 
    return (
       <SafeAreaView style={styles.container}>
-         {/* Header */}
-         <View style={styles.header}>
-            <View style={styles.headerContent}>
-               <View>
-                  <Title style={{ color: "#FFFFFF", marginBottom: 4 }}>
-                     Welcome, {user?.username || "User"}
-                  </Title>
-                  <Caption style={{ color: "#FFFFFF", opacity: 0.9 }}>
-                     {user?.role || "Staff"} Dashboard
-                  </Caption>
-               </View>
-               <TouchableOpacity
-                  style={[
-                     styles.toggleButton,
-                     { backgroundColor: theme.primary },
-                  ]}
-                  onPress={toggleTheme}
-               >
-                  <MaterialIcons
-                     name={theme.isDark ? "light-mode" : "dark-mode"}
-                     size={40}
-                     style={styles.toggleButtonText}
-                     color="#FFFFFF"
-                  />
-               </TouchableOpacity>
-               <TouchableOpacity
-                  style={styles.logoutButton}
-                  onPress={handleLogout}
-               >
-                  <MaterialIcons
-                     style={styles.logoutText}
-                     name="logout"
-                     size={50}
-                     color="#FFFFFF"
-                  />
-               </TouchableOpacity>
-            </View>
-         </View>
+         <HomeHeader
+            username={user?.username || "User"}
+            role={user?.role || "Staff"}
+            onToggleTheme={toggleTheme}
+            onLogout={handleLogout}
+         />
 
-         {/* Content */}
-         <ScrollView style={styles.scrollContent}>
-            {/* Quick Stats (for managers and admins) */}
+         <ScrollView
+            style={styles.scrollContent}
+            refreshControl={
+               <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={theme.primary}
+               />
+            }
+         >
             {(user?.role?.toLowerCase() === "manager" ||
-               user?.role?.toLowerCase() === "admin") && (
-               <View style={styles.statsContainer}>
-                  <View style={styles.statCard}>
-                     <Text style={styles.statValue}>247</Text>
-                     <Text style={styles.statLabel}>Total Items</Text>
-                  </View>
-                  <View
-                     style={[styles.statCard, { backgroundColor: theme.card }]}
+               user?.role?.toLowerCase() === "admin") &&
+               (loadingStats ? (
+                  <Card
+                     style={{
+                        padding: 20,
+                        backgroundColor: theme.secondary,
+                        marginBottom: 24,
+                     }}
                   >
-                     <Text style={styles.statValue}>12</Text>
-                     <Text style={styles.statLabel}>Low Stock</Text>
+                     <Body style={{ textAlign: "center" }}>
+                        Loading stats...
+                     </Body>
+                  </Card>
+               ) : (
+                  <View style={styles.statsContainer}>
+                     <StatCard value={totalItems} label="Total Items" />
+                     <StatCard
+                        value={totalStocks}
+                        label={
+                           totalStocks < 50 ? "Low Stock" : "Total Stock Value"
+                        }
+                        backgroundColor={theme.card}
+                     />
+                     <StatCard
+                        value={`₱${todaysSales?.toLocaleString() || 0}`}
+                        label="Today's Sales"
+                        backgroundColor={theme.success}
+                     />
                   </View>
-                  <View
-                     style={[
-                        styles.statCard,
-                        { backgroundColor: theme.success },
-                     ]}
-                  >
-                     <Text style={styles.statValue}>₱45.2k</Text>
-                     <Text style={styles.statLabel}>Today's Sales</Text>
-                  </View>
-               </View>
-            )}
+               ))}
 
-            {/* Info Card */}
-            <View style={styles.infoCard}>
-               <Caption style={{ textAlign: "center" }}>
+            <Card
+               style={{
+                  marginBottom: 24,
+                  opacity: 0.9,
+                  backgroundColor: theme.secondary,
+               }}
+            >
+               <Caption align="center">
                   💡 Use the tabs below to navigate between Inventory, Sales,
                   and Reports
                </Caption>
-            </View>
+            </Card>
 
-            {/* Quick Actions Section */}
             <Subtitle style={{ marginBottom: 16 }}>Quick Actions</Subtitle>
 
             <View style={styles.menuGrid}>
                {quickActions.length > 0 ? (
                   quickActions.map((action, index) => (
-                     <TouchableOpacity
+                     <QuickActionCard
                         key={index}
-                        style={[styles.menuCard]}
+                        icon={action.icon}
+                        title={action.title}
+                        description={action.description}
                         onPress={() => handleActionPress(action)}
-                     >
-                        <Text style={styles.menuIcon}>{action.icon}</Text>
-                        <View style={styles.menuContent}>
-                           <Subtitle>{action.title}</Subtitle>
-                           <Caption>{action.description}</Caption>
-                        </View>
-                     </TouchableOpacity>
+                     />
                   ))
                ) : (
                   <View style={styles.emptyState}>
-                     <Body style={{ textAlign: "center" }}>
+                     <Body align="center">
                         No actions available for your role.{"\n"}Please contact
                         your administrator.
                      </Body>

@@ -46,7 +46,7 @@ export default function TransactionScreen() {
          setSelectedProducts(
             selectedProducts.map((p) =>
                p.product._id === product._id
-                  ? { ...p, quantity: p.quantity + 1 }
+                  ? { ...p, quantity: Math.min(p.quantity + 1, product.stock) }
                   : p,
             ),
          );
@@ -178,7 +178,7 @@ export default function TransactionScreen() {
                               <Body style={{ fontWeight: "600" }}>
                                  {item.product.name}
                               </Body>
-                              <Caption>₱{item.product.price} each</Caption>
+                              <Caption>₱{item.product.price}</Caption>
                            </View>
                            <View
                               style={{
@@ -189,7 +189,7 @@ export default function TransactionScreen() {
                            >
                               <TouchableOpacity
                                  style={{
-                                    backgroundColor: theme.bg2,
+                                    backgroundColor: theme.gray,
                                     width: 32,
                                     height: 32,
                                     borderRadius: 16,
@@ -220,7 +220,7 @@ export default function TransactionScreen() {
                               </Body>
                               <TouchableOpacity
                                  style={{
-                                    backgroundColor: theme.bg2,
+                                    backgroundColor: theme.gray,
                                     width: 32,
                                     height: 32,
                                     borderRadius: 16,
@@ -230,7 +230,10 @@ export default function TransactionScreen() {
                                  onPress={() =>
                                     updateQuantity(
                                        item.product._id,
-                                       item.quantity + 1,
+                                       Math.min(
+                                          item.quantity + 1,
+                                          item.product.stock,
+                                       ),
                                     )
                                  }
                               >
