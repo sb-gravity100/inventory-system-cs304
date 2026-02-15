@@ -6,6 +6,7 @@ import {
    ScrollView,
    Alert,
 } from "react-native";
+import { Title, Body, Caption, Subtitle } from "../../components/ui";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -268,12 +269,12 @@ export default function HomeScreen() {
          <View style={styles.header}>
             <View style={styles.headerContent}>
                <View>
-                  <Text style={styles.welcomeText}>
+                  <Title style={{ color: "#FFFFFF", marginBottom: 4 }}>
                      Welcome, {user?.username || "User"}
-                  </Text>
-                  <Text style={styles.roleText}>
+                  </Title>
+                  <Caption style={{ color: "#FFFFFF", opacity: 0.9 }}>
                      {user?.role || "Staff"} Dashboard
-                  </Text>
+                  </Caption>
                </View>
                <TouchableOpacity
                   style={[
@@ -333,14 +334,14 @@ export default function HomeScreen() {
 
             {/* Info Card */}
             <View style={styles.infoCard}>
-               <Text style={styles.infoText}>
+               <Caption style={{ textAlign: "center" }}>
                   💡 Use the tabs below to navigate between Inventory, Sales,
                   and Reports
-               </Text>
+               </Caption>
             </View>
 
             {/* Quick Actions Section */}
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            <Subtitle style={{ marginBottom: 16 }}>Quick Actions</Subtitle>
 
             <View style={styles.menuGrid}>
                {quickActions.length > 0 ? (
@@ -352,19 +353,17 @@ export default function HomeScreen() {
                      >
                         <Text style={styles.menuIcon}>{action.icon}</Text>
                         <View style={styles.menuContent}>
-                           <Text style={styles.menuTitle}>{action.title}</Text>
-                           <Text style={styles.menuDescription}>
-                              {action.description}
-                           </Text>
+                           <Subtitle>{action.title}</Subtitle>
+                           <Caption>{action.description}</Caption>
                         </View>
                      </TouchableOpacity>
                   ))
                ) : (
                   <View style={styles.emptyState}>
-                     <Text style={styles.emptyText}>
-                        No actions available for your role.{"\n"}
-                        Please contact your administrator.
-                     </Text>
+                     <Body style={{ textAlign: "center" }}>
+                        No actions available for your role.{"\n"}Please contact
+                        your administrator.
+                     </Body>
                   </View>
                )}
             </View>

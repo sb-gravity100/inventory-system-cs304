@@ -6,8 +6,8 @@ import {
    ScrollView,
    Alert,
    Modal,
-   TextInput as RNTextInput,
 } from "react-native";
+import { Title, Subtitle, Body, Caption, Label } from "../components/ui";
 import { Input } from "../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
@@ -280,12 +280,6 @@ export default function UsersScreen() {
       userInfo: {
          flex: 1,
       },
-      username: {
-         fontSize: 18,
-         fontWeight: "600",
-         color: theme.textPrimary,
-         marginBottom: 4,
-      },
       roleBadge: {
          paddingHorizontal: 12,
          paddingVertical: 4,
@@ -394,20 +388,10 @@ export default function UsersScreen() {
       saveButton: {
          backgroundColor: theme.success,
       },
-      buttonText: {
-         color: "#FFFFFF",
-         fontSize: 16,
-         fontWeight: "600",
-      },
       loadingContainer: {
          flex: 1,
          justifyContent: "center",
          alignItems: "center",
-      },
-      loadingText: {
-         marginTop: 12,
-         fontSize: 16,
-         color: theme.textSecondary,
       },
    });
 
@@ -420,7 +404,15 @@ export default function UsersScreen() {
                   size={48}
                   color={theme.textSecondary}
                />
-               <Text style={styles.loadingText}>Loading users...</Text>
+               <Body
+                  style={{
+                     textAlign: "center",
+                     marginTop: 12,
+                     color: theme.textSecondary,
+                  }}
+               >
+                  Loading users...
+               </Body>
             </View>
          </SafeAreaView>
       );
@@ -438,10 +430,12 @@ export default function UsersScreen() {
                   <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
                </TouchableOpacity>
                <View>
-                  <Text style={styles.headerTitle}>👥 User Management</Text>
-                  <Text style={styles.headerSubtitle}>
+                  <Title style={{ color: "#FFFFFF", marginBottom: 4 }}>
+                     👥 User Management
+                  </Title>
+                  <Caption style={{ color: "#FFFFFF", opacity: 0.9 }}>
                      Manage staff accounts and permissions
-                  </Text>
+                  </Caption>
                </View>
             </View>
          </View>
@@ -462,9 +456,8 @@ export default function UsersScreen() {
                   <View key={userItem._id} style={[styles.userCard]}>
                      <View style={styles.userHeader}>
                         <View style={styles.userInfo}>
-                           <Text style={styles.username}>
-                              {userItem.username}
-                           </Text>
+                           <Subtitle>{userItem.username}</Subtitle>
+
                            <View
                               style={[
                                  styles.roleBadge,
@@ -514,9 +507,9 @@ export default function UsersScreen() {
                ))
             ) : (
                <View style={styles.emptyState}>
-                  <Text style={styles.emptyText}>
+                  <Body style={{ textAlign: "center" }}>
                      No users found.{"\n"}Create your first user to get started.
-                  </Text>
+                  </Body>
                </View>
             )}
          </ScrollView>

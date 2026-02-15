@@ -6,6 +6,7 @@ import {
    Animated,
    FlatList, // Add this
 } from "react-native";
+import { Title, Caption, Body } from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -240,7 +241,7 @@ export default function InventoryScreen() {
       return (
          <SafeAreaView style={styles.container}>
             <View style={styles.emptyState}>
-               <Text style={styles.emptyText}>Loading products...</Text>
+               <Body style={{ textAlign: "center" }}>Loading products...</Body>
             </View>
          </SafeAreaView>
       );
@@ -249,10 +250,12 @@ export default function InventoryScreen() {
    return (
       <SafeAreaView style={styles.container}>
          <View style={styles.header}>
-            <Text style={styles.headerTitle}>📦 Inventory</Text>
-            <Text style={styles.headerSubtitle}>
+            <Title style={{ color: "#FFFFFF", marginBottom: 4 }}>
+               📦 Inventory
+            </Title>
+            <Caption style={{ color: "#FFFFFF", opacity: 0.9 }}>
                {products.length} products in stock
-            </Text>
+            </Caption>
          </View>
 
          <FlatList
@@ -271,10 +274,10 @@ export default function InventoryScreen() {
             ListEmptyComponent={
                !loading && (
                   <View style={styles.emptyState}>
-                     <Text style={styles.emptyText}>
+                     <Body style={{ textAlign: "center" }}>
                         No products found.{"\n"}Add your first product to get
                         started.
-                     </Text>
+                     </Body>
                   </View>
                )
             }
