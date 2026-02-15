@@ -236,7 +236,7 @@ export default function HomeScreen() {
          textAlign: "center",
       },
       infoCard: {
-         backgroundColor: theme.accent,
+         backgroundColor: theme.secondary,
          borderRadius: 12,
          padding: 16,
          marginBottom: 24,

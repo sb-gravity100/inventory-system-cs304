@@ -1,24 +1,15 @@
 import { Redirect, Tabs } from "expo-router";
 import { useAuth } from "../../context/AuthContext";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useTheme } from "../../components/ThemeProvider";
 import { MaterialIcons } from "@expo/vector-icons";
+import { Loading } from "../../components/ui";
 
 export default function TabsLayout() {
    const { user, isLoading } = useAuth();
    const { theme } = useTheme();
 
    if (isLoading) {
-      return (
-         <View
-            style={[
-               styles.loadingContainer,
-               { backgroundColor: theme.background },
-            ]}
-         >
-            <ActivityIndicator size="large" color={theme.primary} />
-         </View>
-      );
+      return <Loading />;
    }
 
    // If user is not authenticated, redirect to login
@@ -81,11 +72,3 @@ export default function TabsLayout() {
       </Tabs>
    );
 }
-
-const styles = StyleSheet.create({
-   loadingContainer: {
-      flex: 1,
-      justifyContent: "center",
-      alignItems: "center",
-   },
-});

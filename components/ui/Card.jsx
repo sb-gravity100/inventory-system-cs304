@@ -21,13 +21,7 @@ export default function Card({ children, style, variant = "default" }) {
    });
 
    return (
-      <View
-         style={[
-            styles.card,
-            theme.background === "#2E2E2E" && styles.cardDark,
-            style,
-         ]}
-      >
+      <View style={[styles.card, theme.isDark && styles.cardDark, style]}>
          {children}
       </View>
    );

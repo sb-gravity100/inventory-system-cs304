@@ -18,7 +18,7 @@ export default function Button({
          alignItems: "center",
          justifyContent: "center",
          paddingVertical: 12,
-         paddingHorizontal: 20,
+         paddingHorizontal: 12,
          borderRadius: 8,
          gap: 8,
       },

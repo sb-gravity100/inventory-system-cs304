@@ -1,0 +1,27 @@
+import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { useTheme } from "../ThemeProvider";
+import { Body } from "./Typography";
+
+export default function Loading({ message = "Loading...", size = "large" }) {
+   const { theme } = useTheme();
+
+   const styles = StyleSheet.create({
+      container: {
+         flex: 1,
+         justifyContent: "center",
+         alignItems: "center",
+         backgroundColor: theme.background,
+      },
+      message: {
+         marginTop: 16,
+         color: theme.textSecondary,
+      },
+   });
+
+   return (
+      <View style={styles.container}>
+         <ActivityIndicator size={size} color={theme.primary} />
+         {message && <Body style={styles.message}>{message}</Body>}
+      </View>
+   );
+}

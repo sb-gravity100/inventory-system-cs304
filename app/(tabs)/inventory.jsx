@@ -1,12 +1,11 @@
 import {
    View,
-   Text,
-   StyleSheet,
    Alert,
    Animated,
-   FlatList, // Add this
+   FlatList,
+   ActivityIndicator,
 } from "react-native";
-import { Title, Caption, Body } from "../../components/ui";
+import { Title, Caption, Header, FAB, Loading } from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -195,112 +194,78 @@ export default function InventoryScreen() {
       setStockQuantity("");
    };
 
-   const styles = StyleSheet.create({
-      container: {
-         flex: 1,
-         backgroundColor: theme.background,
-      },
-      header: {
-         paddingTop: 10,
-         paddingHorizontal: 20,
-         paddingBottom: 20,
-         backgroundColor: theme.primary,
-      },
-      headerTitle: {
-         fontSize: 24,
-         fontWeight: "bold",
-         color: "#FFFFFF",
-         marginBottom: 4,
-      },
-      headerSubtitle: {
-         fontSize: 14,
-         color: "#FFFFFF",
-         opacity: 0.9,
-      },
-      productList: {
-         padding: 20,
-      },
-      emptyState: {
-         flex: 1,
-         justifyContent: "center",
-         alignItems: "center",
-         paddingVertical: 60,
-      },
-      emptyText: {
-         fontSize: 16,
-         color: theme.textSecondary,
-         textAlign: "center",
-      },
-      loadingMore: {
-         paddingVertical: 20,
-         alignItems: "center",
-      },
-   });
-
    if (loading) {
       return (
-         <SafeAreaView style={styles.container}>
-            <View style={styles.emptyState}>
-               <Body style={{ textAlign: "center" }}>Loading products...</Body>
-            </View>
+         <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+            <Loading message="Loading products..." />
          </SafeAreaView>
       );
    }
 
    return (
-      <SafeAreaView style={styles.container}>
-         <View style={styles.header}>
-            <Title style={{ color: "#FFFFFF", marginBottom: 4 }}>
-               📦 Inventory
-            </Title>
-            <Caption style={{ color: "#FFFFFF", opacity: 0.9 }}>
-               {products.length} products in stock
-            </Caption>
-         </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+         <Header
+            title="📦 Inventory"
+            subtitle={`${products.length} products in stock`}
+         />
 
-         <FlatList
-            data={products}
-            keyExtractor={(item) => item._id}
-            renderItem={({ item }) => (
-               <ProductCard
-                  product={item}
-                  theme={theme}
-                  onUpdateStock={handleUpdateStockFromCard}
-               />
-            )}
-            contentContainerStyle={styles.productList}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-            ListEmptyComponent={
-               !loading && (
-                  <View style={styles.emptyState}>
-                     <Body style={{ textAlign: "center" }}>
+         {loading ? (
+            <View
+               style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+               }}
+            >
+               <Caption style={{ textAlign: "center" }}>
+                  Loading products...
+               </Caption>
+            </View>
+         ) : (
+            <FlatList
+               data={products}
+               keyExtractor={(item) => item._id}
+               renderItem={({ item }) => (
+                  <ProductCard
+                     product={item}
+                     theme={theme}
+                     onUpdateStock={handleUpdateStockFromCard}
+                  />
+               )}
+               contentContainerStyle={{ padding: 20 }}
+               onEndReached={handleLoadMore}
+               onEndReachedThreshold={0.5}
+               ListEmptyComponent={
+                  <View
+                     style={{
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        paddingVertical: 60,
+                     }}
+                  >
+                     <Caption style={{ textAlign: "center" }}>
                         No products found.{"\n"}Add your first product to get
                         started.
-                     </Body>
+                     </Caption>
                   </View>
-               )
-            }
-            ListFooterComponent={
-               loadingMore && (
-                  <View style={styles.loadingMore}>
-                     <ActivityIndicator size="small" color={theme.primary} />
-                  </View>
-               )
-            }
-         />
+               }
+               ListFooterComponent={
+                  loadingMore && (
+                     <View
+                        style={{ paddingVertical: 20, alignItems: "center" }}
+                     >
+                        <ActivityIndicator size="small" color={theme.primary} />
+                     </View>
+                  )
+               }
+            />
+         )}
 
-         <FloatingActionButton
-            theme={theme}
-            fabOpen={fabOpen}
-            fabAnimation={fabAnimation}
-            actions={getActions()}
-            onToggle={toggleFab}
-         />
+         <FAB actions={getActions()} />
 
          <AddProductModal
             visible={addProductModal}
-            theme={theme}
             newProductName={newProductName}
             setNewProductName={setNewProductName}
             newProductPrice={newProductPrice}
@@ -318,7 +283,6 @@ export default function InventoryScreen() {
 
          <UpdateStockModal
             visible={updateStockModal}
-            theme={theme}
             selectedProduct={selectedProduct}
             stockAction={stockAction}
             setStockAction={setStockAction}

@@ -83,10 +83,7 @@ export default function ProductCard({ product, theme, onUpdateStock }) {
 
    return (
       <View
-         style={[
-            styles.productCard,
-            theme.background === "#2E2E2E" && styles.productCardDark,
-         ]}
+         style={[styles.productCard, theme.isDark && styles.productCardDark]}
       >
          <View style={styles.productHeader}>
             <View style={styles.productInfo}>

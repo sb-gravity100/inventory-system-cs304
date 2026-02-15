@@ -1,4 +1,3 @@
-import { View } from "react-native";
 import { Modal, FormField, Input, Button } from "./ui";
 
 export default function AddProductModal({
@@ -39,6 +38,9 @@ export default function AddProductModal({
                placeholder="Enter product name"
                value={newProductName}
                onChangeText={setNewProductName}
+               style={{
+                  width: 250,
+               }}
             />
          </FormField>
 

@@ -1,9 +1,21 @@
-import { View, Modal as RNModal, StyleSheet, TouchableOpacity } from "react-native";
+import {
+   View,
+   Modal as RNModal,
+   StyleSheet,
+   TouchableOpacity,
+} from "react-native";
 import { useTheme } from "../ThemeProvider";
 import { Title } from "./Typography";
 import Button from "./Button";
 
-export default function Modal({ visible, onClose, title, children, actions }) {
+export default function Modal({
+   visible,
+   onClose,
+   title,
+   children,
+   actions,
+   modalStyle,
+}) {
    const { theme } = useTheme();
 
    const styles = StyleSheet.create({
@@ -17,8 +29,6 @@ export default function Modal({ visible, onClose, title, children, actions }) {
          backgroundColor: theme.background,
          borderRadius: 12,
          padding: 24,
-         width: "90%",
-         maxWidth: 400,
       },
       header: {
          marginBottom: 20,
@@ -31,10 +41,22 @@ export default function Modal({ visible, onClose, title, children, actions }) {
    });
 
    return (
-      <RNModal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-         <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
-            <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-               <View style={styles.content}>
+      <RNModal
+         visible={visible}
+         transparent
+         animationType="fade"
+         onRequestClose={onClose}
+      >
+         <TouchableOpacity
+            style={styles.overlay}
+            activeOpacity={1}
+            onPress={onClose}
+         >
+            <TouchableOpacity
+               activeOpacity={1}
+               onPress={(e) => e.stopPropagation()}
+            >
+               <View style={[styles.content, modalStyle]}>
                   {title && (
                      <View style={styles.header}>
                         <Title>{title}</Title>

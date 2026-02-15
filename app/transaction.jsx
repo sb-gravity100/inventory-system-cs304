@@ -1,19 +1,15 @@
-import {
-   View,
-   Text,
-   StyleSheet,
-   TouchableOpacity,
-   ScrollView,
-   Alert,
-   TextInput,
-} from "react-native";
+import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { Body, Caption } from "../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
-import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Header from "../components/ui/Header";
+import SearchBar from "../components/ui/SearchBar";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 const api_url =
    process.env.NODE_ENV === "development"
@@ -110,241 +106,96 @@ export default function TransactionScreen() {
       0,
    );
 
-   const styles = StyleSheet.create({
-      container: {
-         flex: 1,
-         backgroundColor: theme.background,
-      },
-      header: {
-         paddingTop: 10,
-         paddingHorizontal: 20,
-         paddingBottom: 10,
-         backgroundColor: theme.primary,
-      },
-      headerTop: {
-         flexDirection: "row",
-         alignItems: "center",
-         gap: 12,
-      },
-      backButton: {
-         padding: 4,
-      },
-      headerTitle: {
-         fontSize: 24,
-         fontWeight: "bold",
-         color: "#FFFFFF",
-      },
-      searchBar: {
-         backgroundColor:
-            theme.background === "#2E2E2E" ? "#3A3A3A" : "#F5F5F5",
-         borderRadius: 8,
-         paddingHorizontal: 16,
-         paddingVertical: 12,
-         margin: 20,
-         fontSize: 16,
-         color: theme.textPrimary,
-      },
-      content: {
-         flex: 1,
-      },
-      section: {
-         flex: 1,
-      },
-      sectionTitle: {
-         fontSize: 18,
-         fontWeight: "600",
-         color: theme.textPrimary,
-         paddingHorizontal: 20,
-         marginBottom: 12,
-      },
-      productList: {
-         paddingHorizontal: 20,
-      },
-      productCard: {
-         backgroundColor: "#FFFFFF",
-         borderRadius: 8,
-         padding: 16,
-         marginBottom: 12,
-         flexDirection: "row",
-         justifyContent: "space-between",
-         alignItems: "center",
-      },
-      productCardDark: {
-         backgroundColor: "#3A3A3A",
-      },
-      productInfo: {
-         flex: 1,
-      },
-      productName: {
-         fontSize: 16,
-         fontWeight: "600",
-         color: theme.textPrimary,
-      },
-      productPrice: {
-         fontSize: 14,
-         color: theme.textSecondary,
-         marginTop: 4,
-      },
-      addButton: {
-         backgroundColor: theme.success,
-         paddingHorizontal: 16,
-         paddingVertical: 8,
-         borderRadius: 6,
-      },
-      addButtonText: {
-         color: "#FFFFFF",
-         fontWeight: "600",
-      },
-      selectedSection: {
-         borderTopWidth: 1,
-         borderTopColor: theme.border,
-         paddingTop: 16,
-      },
-      selectedItem: {
-         backgroundColor: "#FFFFFF",
-         borderRadius: 8,
-         padding: 16,
-         marginBottom: 12,
-         flexDirection: "row",
-         justifyContent: "space-between",
-         alignItems: "center",
-      },
-      selectedItemDark: {
-         backgroundColor: "#3A3A3A",
-      },
-      quantityControl: {
-         flexDirection: "row",
-         alignItems: "center",
-         gap: 12,
-      },
-      quantityButton: {
-         backgroundColor: theme.accent,
-         width: 32,
-         height: 32,
-         borderRadius: 16,
-         alignItems: "center",
-         justifyContent: "center",
-      },
-      quantityText: {
-         fontSize: 16,
-         fontWeight: "600",
-         color: theme.textPrimary,
-         minWidth: 30,
-         textAlign: "center",
-      },
-      footer: {
-         borderTopWidth: 1,
-         borderTopColor: theme.border,
-         padding: 20,
-         backgroundColor: theme.background,
-      },
-      totalRow: {
-         flexDirection: "row",
-         justifyContent: "space-between",
-         alignItems: "center",
-         marginBottom: 16,
-      },
-      totalLabel: {
-         fontSize: 18,
-         fontWeight: "600",
-         color: theme.textPrimary,
-      },
-      totalAmount: {
-         fontSize: 24,
-         fontWeight: "bold",
-         color: theme.success,
-      },
-      createButton: {
-         backgroundColor: theme.primary,
-         paddingVertical: 16,
-         borderRadius: 8,
-         alignItems: "center",
-      },
-      createButtonText: {
-         color: "#FFFFFF",
-         fontSize: 16,
-         fontWeight: "600",
-      },
-   });
-
    return (
-      <SafeAreaView style={styles.container}>
-         <View style={styles.header}>
-            <View style={styles.headerTop}>
-               <TouchableOpacity
-                  style={styles.backButton}
-                  onPress={() => router.back()}
-               >
-                  <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
-               </TouchableOpacity>
-               <Text style={styles.headerTitle}>💰 New Transaction</Text>
-            </View>
-         </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+         <Header title="💰 New Transaction" showBack />
 
-         <TextInput
-            style={styles.searchBar}
-            placeholder="Search products..."
-            placeholderTextColor={theme.textSecondary}
+         <SearchBar
             value={searchQuery}
             onChangeText={setSearchQuery}
+            placeholder="Search products..."
+            style={{ margin: 20 }}
          />
 
-         <View style={styles.content}>
-            <ScrollView style={styles.section}>
-               <Text style={styles.sectionTitle}>Available Products</Text>
-               <View style={styles.productList}>
+         <View style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }}>
+               <Caption style={{ paddingHorizontal: 20, marginBottom: 12 }}>
+                  Available Products
+               </Caption>
+               <View style={{ paddingHorizontal: 20 }}>
                   {filteredProducts.map((product) => (
-                     <View
+                     <Card
                         key={product._id}
-                        style={[
-                           styles.productCard,
-                           theme.background === "#2E2E2E" &&
-                              styles.productCardDark,
-                        ]}
+                        style={{
+                           marginBottom: 12,
+                           flexDirection: "row",
+                           justifyContent: "space-between",
+                           alignItems: "center",
+                        }}
                      >
-                        <View style={styles.productInfo}>
-                           <Text style={styles.productName}>
+                        <View style={{ flex: 1 }}>
+                           <Body style={{ fontWeight: "600" }}>
                               {product.name}
-                           </Text>
-                           <Text style={styles.productPrice}>
+                           </Body>
+                           <Caption>
                               ₱{product.price} • Stock: {product.stock}
-                           </Text>
+                           </Caption>
                         </View>
-                        <TouchableOpacity
-                           style={styles.addButton}
+                        <Button
+                           title="Add"
+                           variant="success"
                            onPress={() => addProduct(product)}
-                        >
-                           <Text style={styles.addButtonText}>Add</Text>
-                        </TouchableOpacity>
-                     </View>
+                           style={{ paddingHorizontal: 16, paddingVertical: 8 }}
+                        />
+                     </Card>
                   ))}
                </View>
             </ScrollView>
 
             {selectedProducts.length > 0 && (
-               <View style={styles.selectedSection}>
-                  <Text style={styles.sectionTitle}>Selected Items</Text>
-                  <ScrollView style={styles.productList}>
+               <View
+                  style={{
+                     borderTopWidth: 1,
+                     borderTopColor: theme.border,
+                     paddingTop: 16,
+                  }}
+               >
+                  <Caption style={{ paddingHorizontal: 20, marginBottom: 12 }}>
+                     Selected Items
+                  </Caption>
+                  <ScrollView style={{ paddingHorizontal: 20, maxHeight: 200 }}>
                      {selectedProducts.map((item) => (
-                        <View
+                        <Card
                            key={item.product._id}
-                           style={[
-                              styles.selectedItem,
-                              theme.background === "#2E2E2E" &&
-                                 styles.selectedItemDark,
-                           ]}
+                           style={{
+                              marginBottom: 12,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                           }}
                         >
-                           <View style={styles.productInfo}>
-                              <Text style={styles.productName}>
+                           <View style={{ flex: 1 }}>
+                              <Body style={{ fontWeight: "600" }}>
                                  {item.product.name}
-                              </Text>
-                              <Text style={styles.productPrice}>
-                                 ₱{item.product.price} each
-                              </Text>
+                              </Body>
+                              <Caption>₱{item.product.price} each</Caption>
                            </View>
-                           <View style={styles.quantityControl}>
+                           <View
+                              style={{
+                                 flexDirection: "row",
+                                 alignItems: "center",
+                                 gap: 12,
+                              }}
+                           >
                               <TouchableOpacity
-                                 style={styles.quantityButton}
+                                 style={{
+                                    backgroundColor: theme.bg2,
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                 }}
                                  onPress={() =>
                                     updateQuantity(
                                        item.product._id,
@@ -358,11 +209,24 @@ export default function TransactionScreen() {
                                     color="#FFFFFF"
                                  />
                               </TouchableOpacity>
-                              <Text style={styles.quantityText}>
+                              <Body
+                                 style={{
+                                    minWidth: 30,
+                                    textAlign: "center",
+                                    fontWeight: "600",
+                                 }}
+                              >
                                  {item.quantity}
-                              </Text>
+                              </Body>
                               <TouchableOpacity
-                                 style={styles.quantityButton}
+                                 style={{
+                                    backgroundColor: theme.bg2,
+                                    width: 32,
+                                    height: 32,
+                                    borderRadius: 16,
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                 }}
                                  onPress={() =>
                                     updateQuantity(
                                        item.product._id,
@@ -377,24 +241,46 @@ export default function TransactionScreen() {
                                  />
                               </TouchableOpacity>
                            </View>
-                        </View>
+                        </Card>
                      ))}
                   </ScrollView>
                </View>
             )}
          </View>
 
-         <View style={styles.footer}>
-            <View style={styles.totalRow}>
-               <Text style={styles.totalLabel}>Total:</Text>
-               <Text style={styles.totalAmount}>₱{total.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity
-               style={styles.createButton}
-               onPress={createTransaction}
+         <View
+            style={{
+               borderTopWidth: 1,
+               borderTopColor: theme.border,
+               padding: 20,
+               backgroundColor: theme.background,
+            }}
+         >
+            <View
+               style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 16,
+               }}
             >
-               <Text style={styles.createButtonText}>Create Transaction</Text>
-            </TouchableOpacity>
+               <Body style={{ fontWeight: "600" }}>Total:</Body>
+               <Body
+                  style={{
+                     fontSize: 24,
+                     fontWeight: "bold",
+                     color: theme.success,
+                  }}
+               >
+                  ₱{total.toFixed(2)}
+               </Body>
+            </View>
+            <Button
+               title="Create Transaction"
+               variant="primary"
+               onPress={createTransaction}
+               style={{ width: "100%" }}
+            />
          </View>
       </SafeAreaView>
    );
