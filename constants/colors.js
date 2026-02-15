@@ -2,7 +2,7 @@
 export const LightColors = {
    background: "#fafaff", // ghost white
    primary: "#1D263B", // twilight indigo
-   secondary: "#edfafc", // periwinkle
+   secondary: "#3a5d63", // periwinkle
    accent: "#30343f", // jet black
    textPrimary: "#050404", // space indigo
    textSecondary: "#666666",

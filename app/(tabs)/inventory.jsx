@@ -6,7 +6,14 @@ import {
    ActivityIndicator,
    RefreshControl,
 } from "react-native";
-import { Title, Caption, Header, FAB, Loading } from "../../components/ui";
+import {
+   Title,
+   Caption,
+   Header,
+   FAB,
+   Loading,
+   SearchBar,
+} from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -32,6 +39,7 @@ export default function InventoryScreen() {
    const [hasMore, setHasMore] = useState(true);
    const [loadingMore, setLoadingMore] = useState(false);
    const [totalProducts, setTotalProducts] = useState(0);
+   const [searchQuery, setSearchQuery] = useState("");
 
    const [addProductModal, setAddProductModal] = useState(false);
    const [updateStockModal, setUpdateStockModal] = useState(false);
@@ -51,7 +59,7 @@ export default function InventoryScreen() {
       fetchProducts(1);
    }, []);
 
-   const fetchProducts = async (pageNum) => {
+   const fetchProducts = async (pageNum, name = "") => {
       try {
          if (pageNum === 1) {
             setLoading(true);
@@ -64,6 +72,7 @@ export default function InventoryScreen() {
             params: {
                page: pageNum,
                limit: 10,
+               name,
             },
          });
 
@@ -74,7 +83,7 @@ export default function InventoryScreen() {
             setProducts((prev) => [...prev, ...response.data.products]);
          }
 
-         setHasMore(response.data.length === 10);
+         setHasMore(response.data.hasNext);
          setPage(pageNum);
       } catch (error) {
          Alert.alert("Error", "Failed to fetch products");
@@ -86,7 +95,7 @@ export default function InventoryScreen() {
 
    const handleLoadMore = () => {
       if (!loadingMore && hasMore) {
-         fetchProducts(page + 1);
+         fetchProducts(page + 1, searchQuery);
       }
    };
 
@@ -188,7 +197,7 @@ export default function InventoryScreen() {
 
    const onRefresh = async () => {
       setRefreshing(true);
-      await fetchProducts(1);
+      await fetchProducts(1, searchQuery);
       setRefreshing(false);
    };
 
@@ -197,6 +206,21 @@ export default function InventoryScreen() {
          <Header
             title="📦 Inventory"
             subtitle={`${totalProducts} products in stock`}
+         />
+
+         <SearchBar
+            onChangeText={(text) => {
+               setSearchQuery(text);
+               if (text === "") {
+                  setProducts([]);
+                  setHasMore(true);
+               }
+               fetchProducts(1, text);
+            }}
+            placeholder="Search products..."
+            style={{
+               margin: 20,
+            }}
          />
 
          {loading ? (

@@ -137,7 +137,11 @@ export default function HomeScreen() {
                   </Card>
                ) : (
                   <View style={styles.statsContainer}>
-                     <StatCard value={totalItems} label="Total Items" />
+                     <StatCard
+                        value={totalItems}
+                        backgroundColor={theme.bg2}
+                        label="Total Items"
+                     />
                      <StatCard
                         value={totalStocks}
                         label={
@@ -157,7 +161,7 @@ export default function HomeScreen() {
                style={{
                   marginBottom: 24,
                   opacity: 0.9,
-                  backgroundColor: theme.secondary,
+                  backgroundColor: theme.border,
                }}
             >
                <Caption align="center">
