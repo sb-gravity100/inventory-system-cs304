@@ -17,7 +17,7 @@ import axios from "axios";
 
 const api_url =
    process.env.NODE_ENV === "development"
-      ? "http://192.168.254.101:3000"
+      ? "http://192.168.254.102:3000"
       : process.env.EXPO_PUBLIC_API_URL;
 
 export default function TransactionScreen() {
@@ -307,7 +307,7 @@ export default function TransactionScreen() {
                               {product.name}
                            </Text>
                            <Text style={styles.productPrice}>
-                              ₱{product.price} • Stock: {product.stocks}
+                              ₱{product.price} • Stock: {product.stock}
                            </Text>
                         </View>
                         <TouchableOpacity
