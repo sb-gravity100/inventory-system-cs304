@@ -1,19 +1,11 @@
 import {
    View,
    Alert,
-   Animated,
    FlatList,
    ActivityIndicator,
    RefreshControl,
 } from "react-native";
-import {
-   Title,
-   Caption,
-   Header,
-   FAB,
-   Loading,
-   SearchBar,
-} from "../../components/ui";
+import { Caption, Header, FAB, SearchBar } from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -21,7 +13,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { router } from "expo-router";
 import ProductCard from "../../components/ProductCard";
-import FloatingActionButton from "../../components/FloatingActionButton";
 import AddProductModal from "../../components/AddProductModal";
 import UpdateStockModal from "../../components/UpdateStockModal";
 
