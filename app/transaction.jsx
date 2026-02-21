@@ -1,5 +1,5 @@
 import { View, ScrollView, Alert, TouchableOpacity } from "react-native";
-import { Body, Caption } from "../components/ui";
+import { Body, Caption, Loading } from "../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
 import { useAuth } from "../context/AuthContext";
@@ -22,6 +22,7 @@ export default function TransactionScreen() {
    const [products, setProducts] = useState([]);
    const [selectedProducts, setSelectedProducts] = useState([]);
    const [searchQuery, setSearchQuery] = useState("");
+   const [loading, setLoading] = useState(true);
 
    useEffect(() => {
       fetchProducts();
@@ -31,8 +32,10 @@ export default function TransactionScreen() {
       try {
          const response = await axios.get(`${api_url}/products`, {
             headers: { Authorization: `Bearer ${authState.token}` },
+            params: { name: searchQuery, limit: 100 },
          });
          setProducts(response.data);
+         setLoading(false);
       } catch (error) {
          Alert.alert("Error", "Failed to fetch products");
       }
@@ -97,10 +100,6 @@ export default function TransactionScreen() {
       }
    };
 
-   const filteredProducts = products.filter((p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()),
-   );
-
    const total = selectedProducts.reduce(
       (sum, p) => sum + p.product.price * p.quantity,
       0,
@@ -123,32 +122,37 @@ export default function TransactionScreen() {
                   Available Products
                </Caption>
                <View style={{ paddingHorizontal: 20 }}>
-                  {filteredProducts.map((product) => (
-                     <Card
-                        key={product._id}
-                        style={{
-                           marginBottom: 12,
-                           flexDirection: "row",
-                           justifyContent: "space-between",
-                           alignItems: "center",
-                        }}
-                     >
-                        <View style={{ flex: 1 }}>
-                           <Body style={{ fontWeight: "600" }}>
-                              {product.name}
-                           </Body>
-                           <Caption>
-                              ₱{product.price} • Stock: {product.stock}
-                           </Caption>
-                        </View>
-                        <Button
-                           title="Add"
-                           variant="success"
-                           onPress={() => addProduct(product)}
-                           style={{ paddingHorizontal: 16, paddingVertical: 8 }}
-                        />
-                     </Card>
-                  ))}
+                  <Loading isLoading={loading} message="Loading products...">
+                     {products.map((product) => (
+                        <Card
+                           key={product._id}
+                           style={{
+                              marginBottom: 12,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                           }}
+                        >
+                           <View style={{ flex: 1 }}>
+                              <Body style={{ fontWeight: "600" }}>
+                                 {product.name}
+                              </Body>
+                              <Caption>
+                                 ₱{product.price} • Stock: {product.stock}
+                              </Caption>
+                           </View>
+                           <Button
+                              title="Add"
+                              variant="success"
+                              onPress={() => addProduct(product)}
+                              style={{
+                                 paddingHorizontal: 16,
+                                 paddingVertical: 8,
+                              }}
+                           />
+                        </Card>
+                     ))}
+                  </Loading>
                </View>
             </ScrollView>
 

@@ -5,7 +5,7 @@ import {
    ActivityIndicator,
    RefreshControl,
 } from "react-native";
-import { Caption, Header, FAB, SearchBar } from "../../components/ui";
+import { Caption, Header, FAB, SearchBar, Loading } from "../../components/ui";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../components/ThemeProvider";
 import { useAuth } from "../../context/AuthContext";
@@ -104,7 +104,6 @@ export default function InventoryScreen() {
          label: "Create Transaction",
          icon: "add-shopping-cart",
          onPress: () => {
-            setFabOpen(false);
             router.push("/transaction");
          },
       });
@@ -115,7 +114,6 @@ export default function InventoryScreen() {
             label: "Add Product",
             icon: "add-box",
             onPress: () => {
-               setFabOpen(false);
                setAddProductModal(true);
             },
          });
@@ -214,19 +212,7 @@ export default function InventoryScreen() {
             }}
          />
 
-         {loading ? (
-            <View
-               style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-               }}
-            >
-               <Caption style={{ textAlign: "center" }}>
-                  Loading products...
-               </Caption>
-            </View>
-         ) : (
+         <Loading isLoading={loading} message="Loading products...">
             <FlatList
                data={products}
                keyExtractor={(item) => item._id}
@@ -274,7 +260,7 @@ export default function InventoryScreen() {
                   )
                }
             />
-         )}
+         </Loading>
 
          <FAB actions={getActions()} />
 

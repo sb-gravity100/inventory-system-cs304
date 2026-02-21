@@ -2,7 +2,12 @@ import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useTheme } from "../ThemeProvider";
 import { Body } from "./Typography";
 
-export default function Loading({ message = "Loading...", size = "large" }) {
+export default function Loading({
+   message = "Loading...",
+   size = "large",
+   isLoading = true,
+   children,
+}) {
    const { theme } = useTheme();
 
    const styles = StyleSheet.create({
@@ -19,9 +24,15 @@ export default function Loading({ message = "Loading...", size = "large" }) {
    });
 
    return (
-      <View style={styles.container}>
-         <ActivityIndicator size={size} color={theme.primary} />
-         {message && <Body style={styles.message}>{message}</Body>}
+      <View>
+         {isLoading ? (
+            <View style={styles.container}>
+               <ActivityIndicator size={size} color={theme.primary} />
+               <Body style={styles.message}>{message}</Body>
+            </View>
+         ) : (
+            children
+         )}
       </View>
    );
 }
