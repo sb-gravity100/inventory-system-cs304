@@ -21,7 +21,7 @@ import Dropdown from "../components/ui/Dropdown";
 import FormField from "../components/ui/FormField";
 const api_url =
    process.env.NODE_ENV === "development"
-      ? "http://192.168.254.102:3000"
+      ? process.env.EXPO_PUBLIC_API_DEVURL
       : process.env.EXPO_PUBLIC_API_URL;
 
 export default function UsersScreen() {
