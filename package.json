@@ -6,7 +6,8 @@
     "start": "expo start --localhost",
     "android": "expo start --android --localhost",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build:preview": "eas build --platform android --profile preview"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
