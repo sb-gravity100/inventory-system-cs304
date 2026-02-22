@@ -10,6 +10,7 @@ import Header from "../components/ui/Header";
 import SearchBar from "../components/ui/SearchBar";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
+import { router } from "expo-router";
 
 const api_url =
    process.env.NODE_ENV === "development"
@@ -34,7 +35,7 @@ export default function TransactionScreen() {
             headers: { Authorization: `Bearer ${authState.token}` },
             params: { name: searchQuery, limit: 100 },
          });
-         setProducts(response.data);
+         setProducts(response.data.products);
          setLoading(false);
       } catch (error) {
          Alert.alert("Error", "Failed to fetch products");
@@ -91,6 +92,7 @@ export default function TransactionScreen() {
          );
 
          Alert.alert("Success", "Transaction created");
+         router.push("/sales");
          setSelectedProducts([]);
       } catch (error) {
          Alert.alert(
