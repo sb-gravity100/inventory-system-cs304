@@ -3,8 +3,15 @@ import { useLocalSearchParams } from "expo-router";
 import { useTheme } from "../../../components/ThemeProvider";
 import { useAuth } from "../../../context/AuthContext";
 import Header from "../../../components/ui/Header";
-import { Body, Caption, Subtitle } from "../../../components/ui";
-import Card from "../../../components/ui/Card";
+import { Loading } from "../../../components/ui";
+import Button from "../../../components/ui/Button";
+import {
+   TransactionInfoCard,
+   TotalCard,
+   ProductListCard,
+   AddProductPanel,
+   ActionButtons,
+} from "../../../components/transaction";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -12,9 +19,10 @@ import {
    Text,
    StyleSheet,
    ScrollView,
-   ActivityIndicator,
    Alert,
+   TouchableOpacity,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const api_url =
    process.env.NODE_ENV === "development"
@@ -23,47 +31,199 @@ const api_url =
 
 export default function TransactionDetail() {
    const { theme } = useTheme();
-   const { authState } = useAuth();
+   const { authState, user } = useAuth();
    const { transactionId } = useLocalSearchParams();
+
    const [transaction, setTransaction] = useState(null);
    const [loading, setLoading] = useState(true);
+   const [allProducts, setAllProducts] = useState([]);
+   const [editedProducts, setEditedProducts] = useState([]);
+   const [showAddPanel, setShowAddPanel] = useState(false);
+   const [searchQuery, setSearchQuery] = useState("");
+   const [saving, setSaving] = useState(false);
+
+   const isPending = transaction?.status === "pending";
+   const isOwner = transaction?.seller?.username === user?.username;
+   const canEdit =
+      isPending &&
+      (isOwner || user?.role === "admin" || user?.role === "manager");
+
+   const hasChanges =
+      JSON.stringify(
+         editedProducts.map((p) => ({ id: p.product?._id, q: p.quantity })),
+      ) !==
+      JSON.stringify(
+         (transaction?.products || []).map((p) => ({
+            id: p.product?._id,
+            q: p.quantity,
+         })),
+      );
 
    useEffect(() => {
       fetchTransaction();
+      fetchAllProducts();
    }, [transactionId]);
 
    const fetchTransaction = async () => {
       try {
          setLoading(true);
-         const response = await axios.get(
+         const res = await axios.get(
             `${api_url}/sales/transaction/${transactionId}`,
-            { headers: { Authorization: `Bearer ${authState.token}` } },
+            {
+               headers: { Authorization: `Bearer ${authState.token}` },
+            },
          );
-         setTransaction(response.data);
-      } catch (error) {
-         console.error("Error fetching transaction:", error);
+         setTransaction(res.data);
+         setEditedProducts(res.data.products);
+      } catch {
          Alert.alert("Error", "Failed to fetch transaction details");
       } finally {
          setLoading(false);
       }
    };
 
+   const fetchAllProducts = async () => {
+      try {
+         const res = await axios.get(`${api_url}/products`, {
+            headers: { Authorization: `Bearer ${authState.token}` },
+            params: { limit: 100 },
+         });
+         setAllProducts(res.data.products);
+      } catch {}
+   };
+
+   const handleChangeQty = (index, qty) => {
+      if (qty < 1) return handleRemove(index);
+      setEditedProducts((prev) =>
+         prev.map((p, i) => (i === index ? { ...p, quantity: qty } : p)),
+      );
+   };
+
+   const handleRemove = (index) => {
+      setEditedProducts((prev) => prev.filter((_, i) => i !== index));
+   };
+
+   const handleAddProduct = (product) => {
+      const existing = editedProducts.findIndex(
+         (p) => p.product?._id === product._id,
+      );
+      if (existing >= 0) {
+         setEditedProducts((prev) =>
+            prev.map((p, i) =>
+               i === existing ? { ...p, quantity: p.quantity + 1 } : p,
+            ),
+         );
+      } else {
+         setEditedProducts((prev) => [...prev, { product, quantity: 1 }]);
+      }
+      setShowAddPanel(false);
+      setSearchQuery("");
+   };
+
+   const handleSaveProducts = async () => {
+      try {
+         setSaving(true);
+         await axios.post(
+            `${api_url}/sales/transaction-update-products`,
+            {
+               transaction: { id: transactionId, seller: transaction.seller },
+               products: editedProducts.map((p) => ({
+                  product: p.product._id,
+                  quantity: p.quantity,
+               })),
+            },
+            { headers: { Authorization: `Bearer ${authState.token}` } },
+         );
+         await fetchTransaction();
+         Alert.alert("Saved", "Transaction updated.");
+      } catch (e) {
+         Alert.alert("Error", e.response?.data?.message || "Failed to update");
+      } finally {
+         setSaving(false);
+      }
+   };
+
+   const handleFinalize = () => {
+      Alert.alert("Finalize Transaction", "This cannot be undone.", [
+         { text: "Cancel", style: "cancel" },
+         {
+            text: "Finalize",
+            onPress: async () => {
+               try {
+                  await axios.post(
+                     `${api_url}/sales/transaction-finalize`,
+                     {
+                        transaction: {
+                           id: transactionId,
+                           seller: transaction.seller,
+                        },
+                     },
+                     {
+                        headers: { Authorization: `Bearer ${authState.token}` },
+                     },
+                  );
+                  fetchTransaction();
+               } catch (e) {
+                  Alert.alert(
+                     "Error",
+                     e.response?.data?.message || "Failed to finalize",
+                  );
+               }
+            },
+         },
+      ]);
+   };
+
+   const handleCancel = () => {
+      Alert.alert("Cancel Transaction", "Are you sure?", [
+         { text: "No", style: "cancel" },
+         {
+            text: "Yes, Cancel",
+            style: "destructive",
+            onPress: async () => {
+               try {
+                  await axios.post(
+                     `${api_url}/sales/transaction-cancel`,
+                     { transactionId },
+                     {
+                        headers: { Authorization: `Bearer ${authState.token}` },
+                     },
+                  );
+                  fetchTransaction();
+               } catch (e) {
+                  Alert.alert(
+                     "Error",
+                     e.response?.data?.message || "Failed to cancel",
+                  );
+               }
+            },
+         },
+      ]);
+   };
+
+   const total = editedProducts.reduce(
+      (sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0),
+      0,
+   );
+
    const styles = StyleSheet.create({
-      container: {
-         flex: 1,
-         backgroundColor: theme.background,
-      },
+      container: { flex: 1, backgroundColor: theme.background },
       content: {
          paddingHorizontal: 20,
          paddingVertical: 16,
-      },
-      section: {
-         marginBottom: 16,
+         paddingBottom: 40,
+         marginBottom: 80,
       },
       sectionTitle: {
          fontSize: 14,
          fontWeight: "600",
          color: theme.textSecondary,
+         marginBottom: 8,
+      },
+      sectionHeader: {
+         flexDirection: "row",
+         justifyContent: "space-between",
+         alignItems: "center",
          marginBottom: 8,
       },
       detailCard: {
@@ -80,15 +240,8 @@ export default function TransactionDetail() {
          borderBottomWidth: 1,
          borderBottomColor: theme.border,
       },
-      label: {
-         fontSize: 13,
-         color: theme.textSecondary,
-      },
-      value: {
-         fontSize: 14,
-         fontWeight: "600",
-         color: theme.textPrimary,
-      },
+      label: { fontSize: 13, color: theme.textSecondary },
+      value: { fontSize: 14, fontWeight: "600", color: theme.textPrimary },
       productItem: {
          paddingVertical: 12,
          borderBottomWidth: 1,
@@ -103,124 +256,105 @@ export default function TransactionDetail() {
       productMeta: {
          flexDirection: "row",
          justifyContent: "space-between",
+         alignItems: "center",
+         flexWrap: "wrap",
+         gap: 8,
       },
-      totalAmount: {
-         fontSize: 18,
-         fontWeight: "bold",
-         color: theme.success,
+      totalAmount: { fontSize: 18, fontWeight: "bold", color: theme.success },
+      qtyRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+      qtyBtn: {
+         backgroundColor: theme.gray || "#686868",
+         width: 26,
+         height: 26,
+         borderRadius: 13,
+         alignItems: "center",
+         justifyContent: "center",
       },
+      qtyText: {
+         minWidth: 24,
+         textAlign: "center",
+         color: theme.textPrimary,
+         fontWeight: "600",
+      },
+      addBtn: {
+         backgroundColor: theme.success,
+         width: 32,
+         height: 32,
+         borderRadius: 16,
+         alignItems: "center",
+         justifyContent: "center",
+      },
+      actionRow: { flexDirection: "row", gap: 12, marginTop: 8, marginBottom: 12 },
    });
-
-   if (loading) {
-      return (
-         <SafeAreaView style={styles.container}>
-            <Header title="Transaction Details" />
-            <View
-               style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-               }}
-            >
-               <ActivityIndicator size="large" color={theme.primary} />
-            </View>
-         </SafeAreaView>
-      );
-   }
-
-   if (!transaction) {
-      return (
-         <SafeAreaView style={styles.container}>
-            <Header title="Transaction Details" />
-            <View
-               style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-               }}
-            >
-               <Caption>Transaction not found</Caption>
-            </View>
-         </SafeAreaView>
-      );
-   }
-
-   const total = transaction.products.reduce(
-      (sum, item) => sum + (item.product?.price || 0) * (item.quantity || 0),
-      0,
-   );
 
    return (
       <SafeAreaView style={styles.container}>
-         <Header title="Transaction Details" />
-         <ScrollView style={styles.content}>
-            <View style={styles.section}>
-               <Text style={styles.sectionTitle}>TRANSACTION INFO</Text>
-               <View style={styles.detailCard}>
-                  <View style={styles.row}>
-                     <Text style={styles.label}>Transaction ID</Text>
-                     <Text style={styles.value}>{transaction._id}</Text>
-                  </View>
-                  <View style={styles.row}>
-                     <Text style={styles.label}>Seller</Text>
-                     <Text style={styles.value}>
-                        {transaction.seller?.username || "Unknown"}
-                     </Text>
-                  </View>
-                  <View style={styles.row}>
-                     <Text style={styles.label}>Status</Text>
-                     <Text style={[styles.value, { color: theme.success }]}>
-                        {transaction.status?.toUpperCase() || "PENDING"}
-                     </Text>
-                  </View>
-                  <View style={[styles.row, { borderBottomWidth: 0 }]}>
-                     <Text style={styles.label}>Date</Text>
-                     <Text style={styles.value}>
-                        {new Date(transaction.createdAt).toLocaleDateString()}
-                     </Text>
-                  </View>
-               </View>
-            </View>
+         <Header title="Transaction Details" showBack />
+         <Loading isLoading={loading} message="Loading transaction...">
+            <ScrollView style={styles.content}>
+               {transaction && (
+                  <>
+                     <Text style={styles.sectionTitle}>TRANSACTION INFO</Text>
+                     <TransactionInfoCard
+                        transaction={transaction}
+                        styles={styles}
+                     />
+                     <ActionButtons
+                        status={transaction.status}
+                        onFinalize={handleFinalize}
+                        onCancel={handleCancel}
+                        styles={styles}
+                     />
+                     <TotalCard total={total} styles={styles} />
 
-            <View style={styles.section}>
-               <View style={styles.detailCard}>
-                  <View style={[styles.row, { borderBottomWidth: 0 }]}>
-                     <Subtitle>Total Amount</Subtitle>
-                     <Text style={styles.totalAmount}>₱{total.toFixed(2)}</Text>
-                  </View>
-               </View>
-            </View>
-
-            <View style={styles.section}>
-               <Text style={styles.sectionTitle}>PRODUCTS</Text>
-               <View style={styles.detailCard}>
-                  {transaction.products.map((item, index) => (
-                     <View key={index} style={styles.productItem}>
-                        <Text style={styles.productName}>
-                           {item.product?.name || "Unknown Product"}
-                        </Text>
-                        <View style={styles.productMeta}>
-                           <Text style={styles.label}>
-                              Qty: {item.quantity}
-                           </Text>
-                           <Text style={styles.label}>
-                              ₱{(item.product?.price || 0).toFixed(2)}
-                           </Text>
-                           <Text
-                              style={[styles.value, { color: theme.success }]}
+                     <View style={styles.sectionHeader}>
+                        <Text style={styles.sectionTitle}>PRODUCTS</Text>
+                        {canEdit && (
+                           <TouchableOpacity
+                              onPress={() => setShowAddPanel((v) => !v)}
                            >
-                              ₱
-                              {(
-                                 (item.product?.price || 0) *
-                                 (item.quantity || 0)
-                              ).toFixed(2)}
-                           </Text>
-                        </View>
+                              <MaterialIcons
+                                 name={showAddPanel ? "close" : "add-circle"}
+                                 size={24}
+                                 color={theme.success}
+                              />
+                           </TouchableOpacity>
+                        )}
                      </View>
-                  ))}
-               </View>
-            </View>
-         </ScrollView>
+
+                     {showAddPanel && canEdit && (
+                        <View style={styles.detailCard}>
+                           <AddProductPanel
+                              allProducts={allProducts}
+                              onAdd={handleAddProduct}
+                              searchQuery={searchQuery}
+                              setSearchQuery={setSearchQuery}
+                              styles={styles}
+                           />
+                        </View>
+                     )}
+
+                     <ProductListCard
+                        products={editedProducts}
+                        editable={canEdit}
+                        onChangeQty={handleChangeQty}
+                        onRemove={handleRemove}
+                        styles={styles}
+                     />
+
+                     {canEdit && hasChanges && (
+                        <Button
+                           title={saving ? "Saving..." : "Save Changes"}
+                           variant="primary"
+                           disabled={saving}
+                           onPress={handleSaveProducts}
+                           style={{ marginBottom: 30 }}
+                        />
+                     )}
+                  </>
+               )}
+            </ScrollView>
+         </Loading>
       </SafeAreaView>
    );
 }

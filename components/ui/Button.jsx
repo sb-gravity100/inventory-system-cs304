@@ -9,6 +9,7 @@ export default function Button({
    icon,
    disabled = false,
    style,
+   textStyle,
 }) {
    const { theme } = useTheme();
 
@@ -71,6 +72,7 @@ export default function Button({
             style={[
                styles.buttonText,
                variant === "outline" && styles.outlineText,
+               textStyle,
             ]}
          >
             {title}
